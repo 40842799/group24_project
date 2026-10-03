@@ -1,4 +1,4 @@
 FROM amazoncorretto:17
-COPY ./target/classes/com /tmp/com
+COPY ./target/devopsApp.jar /tmp
 WORKDIR /tmp
-ENTRYPOINT ["java", "com.napier.devops.Main"]
+ENTRYPOINT ["java", "-jar", "devopsApp.jar"]
