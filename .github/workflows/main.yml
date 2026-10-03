@@ -1,0 +1,23 @@
+name: A workflow for group 24 project App
+on: push
+
+jobs:
+  build:
+    name: Group 24 project action
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5.1.0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5.7.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 1. Create the network and start MySQL DB container with the correct network alias
+      - name: Setup Docker Network and MySQL Database
+        run: |
+#           docker network create group24_project
+#           docker run -d --name mydb --network group24_project --network-alias mydb mongo
