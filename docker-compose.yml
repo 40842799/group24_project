@@ -1,0 +1,27 @@
+services:
+  db:
+    build: ./db
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: world
+      MYSQL_USER: world_app
+      MYSQL_PASSWORD: world_example
+    healthcheck:
+      test: >-
+        MYSQL_PWD=$$MYSQL_PASSWORD mysql
+        -h 127.0.0.1 -u world_app world
+        -e 'SELECT COUNT(*) FROM country'
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  app:
+    build: .
+    environment:
+      DB_URL: "jdbc:mysql://db:3306/world?allowPublicKeyRetrieval=true&useSSL=false"
+      DB_USER: world_app
+      DB_PASSWORD: world_example
+    depends_on:
+      db:
+        condition: service_healthy
