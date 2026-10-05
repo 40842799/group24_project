@@ -133,6 +133,7 @@ public class App {
             System.out.println("=====================================");
             System.out.println("The top `N` populated cities in a country ");
             System.out.println("=====================================");
+            r15(connection);
             System.out.println("Press ENTER to continue...");
             scanner.nextLine();
 
