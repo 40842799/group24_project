@@ -24,7 +24,12 @@ public class App {
 
         // Close the connection and query resources automatically.
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            Scanner scanner = new Scanner(System.in);
+            Scanner scanner = null;
+            boolean isInteractive = System.console() != null;
+            if (isInteractive) {
+                scanner = new Scanner(System.in);
+            }
+
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery("SELECT COUNT(*) AS total FROM country");
             if (results.next()) {
@@ -37,176 +42,219 @@ public class App {
             System.out.println("=====================================");
             r1(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the countries in a continent organised by largest population to smallest.");
             System.out.println("=====================================");
             r2(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the countries in a region organised by largest population to smallest");
             System.out.println("=====================================");
             r3(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The top `N` populated countries in the world ");
             System.out.println("=====================================");
             r4(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The top `N` populated countries in a continent");
             System.out.println("=====================================");
             r5(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The top `N` populated countries in a region");
             System.out.println("=====================================");
             r6(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the cities in the world organised by largest population to smallest");
             System.out.println("=====================================");
             r7(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the cities in a continent organised by largest population to smallest.");
             System.out.println("=====================================");
             r8(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the cities in a region organised by largest population to smallest");
             System.out.println("=====================================");
             r9(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the cities in a country organised by largest population to smallest.");
             System.out.println("=====================================");
             r10(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the cities in a district organised by largest population to smallest");
             System.out.println("=====================================");
             r11(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The top `N` populated cities in the world");
             System.out.println("=====================================");
             r12(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The top `N` populated cities in a continent ");
             System.out.println("=====================================");
             r13(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
-
+            if (isInteractive) {
+                scanner.nextLine();
+            }
             System.out.println("=====================================");
             System.out.println("The top `N` populated cities in a region");
             System.out.println("=====================================");
             r14(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The top `N` populated cities in a country ");
             System.out.println("=====================================");
             r15(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The top `N` populated cities in a district");
             System.out.println("=====================================");
             r16(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
-
+            if (isInteractive) {
+                scanner.nextLine();
+            }
             System.out.println("=====================================");
             System.out.println("All the capital cities in the world organised by largest population to smallest");
             System.out.println("=====================================");
             r17(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the capital cities in a continent organised by largest population to smallest");
             System.out.println("=====================================");
             r18(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("All the capital cities in a region organised by largest to smallest");
             System.out.println("=====================================");
             r19(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The top `N` populated capital cities in the world");
             System.out.println("=====================================");
             r20(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
-
+            if (isInteractive) {
+                scanner.nextLine();
+            }
             System.out.println("=====================================");
             System.out.println("The top `N` populated capital cities in a continent ");
             System.out.println("=====================================");
             r21(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
-
+            if (isInteractive) {
+                scanner.nextLine();
+            }
             System.out.println("=====================================");
             System.out.println("The top `N` populated capital cities in a region ");
             System.out.println("=====================================");
             r22(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
-
+            if (isInteractive) {
+                scanner.nextLine();
+            }
             System.out.println("=====================================");
             System.out.println("The population of people, people living in cities, and people not living in cities in each continent");
             System.out.println("=====================================");
             r23(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
-
+            if (isInteractive) {
+                scanner.nextLine();
+            }
             System.out.println("=====================================");
             System.out.println("The population of people, people living in cities, and people not living in cities in each region");
             System.out.println("=====================================");
             r24(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
+            if (isInteractive) {
+                scanner.nextLine();
+            }
 
             System.out.println("=====================================");
             System.out.println("The population of people, people living in cities, and people not living in cities in each country.");
             System.out.println("=====================================");
             r25(connection);
             System.out.println("Press ENTER to continue...");
-            scanner.nextLine();
-
+            if (isInteractive) {
+                scanner.nextLine();
+            }
         }
 
     }
