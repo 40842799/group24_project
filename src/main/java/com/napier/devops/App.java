@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
-import static java.lang.Thread.sleep;
 import static com.napier.devops.Reports.*;
 
 public class App {
