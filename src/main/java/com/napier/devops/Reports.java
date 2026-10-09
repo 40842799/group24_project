@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.*;
 
 public class Reports {
 
@@ -536,16 +537,12 @@ public class Reports {
 
                 // Print rows
                 while (results.next()) {
-
                     for (int i = 1; i <= columnCount; i++) {
-
-                        System.out.print(results.getString(i));
-
+                        System.out.print(results.getString(i) + "\t\t");
                         if (i < columnCount) {
                             System.out.print(" | ");
                         }
                     }
-
                     System.out.println();
                 }
             }
