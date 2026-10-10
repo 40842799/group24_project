@@ -35,7 +35,7 @@ public class Reports {
      * R1: All countries in the world by population DESC.
      */
     public static void r1(Connection connection) throws SQLException {
-        executeQuery(connection, COUNTRY_SELECT + "ORDER BY country.Population DESC");
+        executeQuery(connection, COUNTRY_SELECT + "ORDER BY country.Population DESC, country.Name ASC");
     }
 
     /**
@@ -44,7 +44,7 @@ public class Reports {
     public static void r2(Connection connection, String continent) throws SQLException {
         executeQuery(
                 connection,
-                COUNTRY_SELECT + "WHERE country.Continent = ? ORDER BY country.Population DESC",
+                COUNTRY_SELECT + "WHERE country.Continent = ? ORDER BY country.Population DESC, country.Name ASC",
                 continent);
     }
 
@@ -54,7 +54,7 @@ public class Reports {
     public static void r3(Connection connection, String region) throws SQLException {
         executeQuery(
                 connection,
-                COUNTRY_SELECT + "WHERE country.Region = ? ORDER BY country.Population DESC",
+                COUNTRY_SELECT + "WHERE country.Region = ? ORDER BY country.Population DESC, country.Name ASC",
                 region);
     }
 
@@ -64,7 +64,7 @@ public class Reports {
     public static void r4(Connection connection, int n) throws SQLException {
         executeQuery(
                 connection,
-                COUNTRY_SELECT + "ORDER BY country.Population DESC LIMIT ?",
+                COUNTRY_SELECT + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
                 n);
     }
 
@@ -76,7 +76,7 @@ public class Reports {
                 connection,
                 COUNTRY_SELECT
                         + "WHERE country.Continent = ? "
-                        + "ORDER BY country.Population DESC LIMIT ?",
+                        + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
                 continent,
                 n);
     }
@@ -89,7 +89,7 @@ public class Reports {
                 connection,
                 COUNTRY_SELECT
                         + "WHERE country.Region = ? "
-                        + "ORDER BY country.Population DESC LIMIT ?",
+                        + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
                 region,
                 n);
     }
@@ -98,7 +98,7 @@ public class Reports {
      * R7: All cities in the world by population DESC.
      */
     public static void r7(Connection connection) throws SQLException {
-        executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC");
+        executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC, city.Name ASC");
     }
 
     /**
@@ -107,7 +107,7 @@ public class Reports {
     public static void r8(Connection connection, String continent) throws SQLException {
         executeQuery(
                 connection,
-                CITY_SELECT + "WHERE country.Continent = ? ORDER BY city.Population DESC",
+                CITY_SELECT + "WHERE country.Continent = ? ORDER BY city.Population DESC, city.Name ASC",
                 continent);
     }
 
@@ -117,7 +117,7 @@ public class Reports {
     public static void r9(Connection connection, String region) throws SQLException {
         executeQuery(
                 connection,
-                CITY_SELECT + "WHERE country.Region = ? ORDER BY city.Population DESC",
+                CITY_SELECT + "WHERE country.Region = ? ORDER BY city.Population DESC, city.Name ASC",
                 region);
     }
 
@@ -127,7 +127,7 @@ public class Reports {
     public static void r10(Connection connection, String country) throws SQLException {
         executeQuery(
                 connection,
-                CITY_SELECT + "WHERE country.Name = ? ORDER BY city.Population DESC",
+                CITY_SELECT + "WHERE country.Name = ? ORDER BY city.Population DESC, city.Name ASC",
                 country);
     }
 
@@ -137,7 +137,7 @@ public class Reports {
     public static void r11(Connection connection, String district) throws SQLException {
         executeQuery(
                 connection,
-                CITY_SELECT + "WHERE city.District = ? ORDER BY city.Population DESC",
+                CITY_SELECT + "WHERE city.District = ? ORDER BY city.Population DESC, city.Name ASC",
                 district);
     }
 
@@ -145,7 +145,7 @@ public class Reports {
      * R12: Top N cities in the world.
      */
     public static void r12(Connection connection, int n) throws SQLException {
-        executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC LIMIT ?", n);
+        executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?", n);
     }
 
     /**
@@ -156,7 +156,7 @@ public class Reports {
                 connection,
                 CITY_SELECT
                         + "WHERE country.Continent = ? "
-                        + "ORDER BY city.Population DESC LIMIT ?",
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
                 continent,
                 n);
     }
@@ -169,7 +169,7 @@ public class Reports {
                 connection,
                 CITY_SELECT
                         + "WHERE country.Region = ? "
-                        + "ORDER BY city.Population DESC LIMIT ?",
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
                 region,
                 n);
     }
@@ -182,7 +182,7 @@ public class Reports {
                 connection,
                 CITY_SELECT
                         + "WHERE country.Name = ? "
-                        + "ORDER BY city.Population DESC LIMIT ?",
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
                 country,
                 n);
     }
@@ -195,7 +195,7 @@ public class Reports {
                 connection,
                 CITY_SELECT
                         + "WHERE city.District = ? "
-                        + "ORDER BY city.Population DESC LIMIT ?",
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
                 district,
                 n);
     }
@@ -204,7 +204,7 @@ public class Reports {
      * R17: All capital cities in the world by population DESC.
      */
     public static void r17(Connection connection) throws SQLException {
-        executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC");
+        executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC, city.Name ASC");
     }
 
     /**
@@ -213,7 +213,7 @@ public class Reports {
     public static void r18(Connection connection, String continent) throws SQLException {
         executeQuery(
                 connection,
-                CAPITAL_SELECT + "WHERE country.Continent = ? ORDER BY city.Population DESC",
+                CAPITAL_SELECT + "WHERE country.Continent = ? ORDER BY city.Population DESC, city.Name ASC",
                 continent);
     }
 
@@ -223,7 +223,7 @@ public class Reports {
     public static void r19(Connection connection, String region) throws SQLException {
         executeQuery(
                 connection,
-                CAPITAL_SELECT + "WHERE country.Region = ? ORDER BY city.Population DESC",
+                CAPITAL_SELECT + "WHERE country.Region = ? ORDER BY city.Population DESC, city.Name ASC",
                 region);
     }
 
@@ -231,7 +231,7 @@ public class Reports {
      * R20: Top N capital cities in the world.
      */
     public static void r20(Connection connection, int n) throws SQLException {
-        executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC LIMIT ?", n);
+        executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?", n);
     }
 
     /**
@@ -242,7 +242,7 @@ public class Reports {
                 connection,
                 CAPITAL_SELECT
                         + "WHERE country.Continent = ? "
-                        + "ORDER BY city.Population DESC LIMIT ?",
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
                 continent,
                 n);
     }
@@ -255,7 +255,7 @@ public class Reports {
                 connection,
                 CAPITAL_SELECT
                         + "WHERE country.Region = ? "
-                        + "ORDER BY city.Population DESC LIMIT ?",
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
                 region,
                 n);
     }
@@ -293,7 +293,7 @@ public class Reports {
                         + "  SELECT CountryCode, SUM(Population) AS CityPopulation "
                         + "  FROM city GROUP BY CountryCode"
                         + ") city_totals ON city_totals.CountryCode = country.Code "
-                        + "ORDER BY country.Population DESC";
+                        + "ORDER BY country.Population DESC, country.Name ASC";
         executeQuery(connection, sql);
     }
 
@@ -353,7 +353,10 @@ public class Reports {
     public static void r31(Connection connection, String city) throws SQLException {
         executeQuery(
                 connection,
-                "SELECT Name AS City, District, Population FROM city WHERE Name = ?",
+                "SELECT city.Name AS City, country.Name AS Country, city.District, city.Population "
+                        + "FROM city JOIN country ON country.Code = city.CountryCode "
+                        + "WHERE city.Name = ? "
+                        + "ORDER BY city.Population DESC, country.Name ASC",
                 city);
     }
 
@@ -423,7 +426,8 @@ public class Reports {
 
                 while (results.next()) {
                     for (int i = 1; i <= columnCount; i++) {
-                        System.out.print(results.getString(i));
+                        String value = results.getString(i);
+                        System.out.print(value == null ? "n/a" : value);
                         if (i < columnCount) {
                             System.out.print(" | ");
                         }
