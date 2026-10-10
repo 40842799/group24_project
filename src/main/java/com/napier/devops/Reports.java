@@ -6,9 +6,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-
 /**
  * Population reports against the MySQL World sample database.
  * Column sets follow the SET09803 assessment brief.
@@ -34,12 +31,16 @@ public class Reports {
                     + "FROM country "
                     + "JOIN city ON city.ID = country.Capital ";
 
-    /** R1: All countries in the world by population DESC. */
+    /**
+     * R1: All countries in the world by population DESC.
+     */
     public static void r1(Connection connection) throws SQLException {
         executeQuery(connection, COUNTRY_SELECT + "ORDER BY country.Population DESC");
     }
 
-    /** R2: All countries in a continent by population DESC. */
+    /**
+     * R2: All countries in a continent by population DESC.
+     */
     public static void r2(Connection connection, String continent) throws SQLException {
         executeQuery(
                 connection,
@@ -47,7 +48,9 @@ public class Reports {
                 continent);
     }
 
-    /** R3: All countries in a region by population DESC. */
+    /**
+     * R3: All countries in a region by population DESC.
+     */
     public static void r3(Connection connection, String region) throws SQLException {
         executeQuery(
                 connection,
@@ -55,7 +58,9 @@ public class Reports {
                 region);
     }
 
-    /** R4: Top N countries in the world. */
+    /**
+     * R4: Top N countries in the world.
+     */
     public static void r4(Connection connection, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -63,7 +68,9 @@ public class Reports {
                 n);
     }
 
-    /** R5: Top N countries in a continent. */
+    /**
+     * R5: Top N countries in a continent.
+     */
     public static void r5(Connection connection, String continent, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -74,7 +81,9 @@ public class Reports {
                 n);
     }
 
-    /** R6: Top N countries in a region. */
+    /**
+     * R6: Top N countries in a region.
+     */
     public static void r6(Connection connection, String region, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -85,12 +94,16 @@ public class Reports {
                 n);
     }
 
-    /** R7: All cities in the world by population DESC. */
+    /**
+     * R7: All cities in the world by population DESC.
+     */
     public static void r7(Connection connection) throws SQLException {
         executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC");
     }
 
-    /** R8: All cities in a continent by population DESC. */
+    /**
+     * R8: All cities in a continent by population DESC.
+     */
     public static void r8(Connection connection, String continent) throws SQLException {
         executeQuery(
                 connection,
@@ -98,7 +111,9 @@ public class Reports {
                 continent);
     }
 
-    /** R9: All cities in a region by population DESC. */
+    /**
+     * R9: All cities in a region by population DESC.
+     */
     public static void r9(Connection connection, String region) throws SQLException {
         executeQuery(
                 connection,
@@ -106,7 +121,9 @@ public class Reports {
                 region);
     }
 
-    /** R10: All cities in a country by population DESC. */
+    /**
+     * R10: All cities in a country by population DESC.
+     */
     public static void r10(Connection connection, String country) throws SQLException {
         executeQuery(
                 connection,
@@ -114,7 +131,9 @@ public class Reports {
                 country);
     }
 
-    /** R11: All cities in a district by population DESC. */
+    /**
+     * R11: All cities in a district by population DESC.
+     */
     public static void r11(Connection connection, String district) throws SQLException {
         executeQuery(
                 connection,
@@ -122,12 +141,16 @@ public class Reports {
                 district);
     }
 
-    /** R12: Top N cities in the world. */
+    /**
+     * R12: Top N cities in the world.
+     */
     public static void r12(Connection connection, int n) throws SQLException {
         executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC LIMIT ?", n);
     }
 
-    /** R13: Top N cities in a continent. */
+    /**
+     * R13: Top N cities in a continent.
+     */
     public static void r13(Connection connection, String continent, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -138,7 +161,9 @@ public class Reports {
                 n);
     }
 
-    /** R14: Top N cities in a region. */
+    /**
+     * R14: Top N cities in a region.
+     */
     public static void r14(Connection connection, String region, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -149,7 +174,9 @@ public class Reports {
                 n);
     }
 
-    /** R15: Top N cities in a country. */
+    /**
+     * R15: Top N cities in a country.
+     */
     public static void r15(Connection connection, String country, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -160,7 +187,9 @@ public class Reports {
                 n);
     }
 
-    /** R16: Top N cities in a district. */
+    /**
+     * R16: Top N cities in a district.
+     */
     public static void r16(Connection connection, String district, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -171,12 +200,16 @@ public class Reports {
                 n);
     }
 
-    /** R17: All capital cities in the world by population DESC. */
+    /**
+     * R17: All capital cities in the world by population DESC.
+     */
     public static void r17(Connection connection) throws SQLException {
         executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC");
     }
 
-    /** R18: All capital cities in a continent by population DESC. */
+    /**
+     * R18: All capital cities in a continent by population DESC.
+     */
     public static void r18(Connection connection, String continent) throws SQLException {
         executeQuery(
                 connection,
@@ -184,7 +217,9 @@ public class Reports {
                 continent);
     }
 
-    /** R19: All capital cities in a region by population DESC. */
+    /**
+     * R19: All capital cities in a region by population DESC.
+     */
     public static void r19(Connection connection, String region) throws SQLException {
         executeQuery(
                 connection,
@@ -192,12 +227,16 @@ public class Reports {
                 region);
     }
 
-    /** R20: Top N capital cities in the world. */
+    /**
+     * R20: Top N capital cities in the world.
+     */
     public static void r20(Connection connection, int n) throws SQLException {
         executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC LIMIT ?", n);
     }
 
-    /** R21: Top N capital cities in a continent. */
+    /**
+     * R21: Top N capital cities in a continent.
+     */
     public static void r21(Connection connection, String continent, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -208,7 +247,9 @@ public class Reports {
                 n);
     }
 
-    /** R22: Top N capital cities in a region. */
+    /**
+     * R22: Top N capital cities in a region.
+     */
     public static void r22(Connection connection, String region, int n) throws SQLException {
         executeQuery(
                 connection,
@@ -256,12 +297,16 @@ public class Reports {
         executeQuery(connection, sql);
     }
 
-    /** R26: Population of the world. */
+    /**
+     * R26: Population of the world.
+     */
     public static void r26(Connection connection) throws SQLException {
         executeQuery(connection, "SELECT SUM(Population) AS WorldPopulation FROM country");
     }
 
-    /** R27: Population of a continent. */
+    /**
+     * R27: Population of a continent.
+     */
     public static void r27(Connection connection, String continent) throws SQLException {
         executeQuery(
                 connection,
@@ -270,7 +315,9 @@ public class Reports {
                 continent);
     }
 
-    /** R28: Population of a region. */
+    /**
+     * R28: Population of a region.
+     */
     public static void r28(Connection connection, String region) throws SQLException {
         executeQuery(
                 connection,
@@ -279,7 +326,9 @@ public class Reports {
                 region);
     }
 
-    /** R29: Population of a country. */
+    /**
+     * R29: Population of a country.
+     */
     public static void r29(Connection connection, String country) throws SQLException {
         executeQuery(
                 connection,
@@ -287,7 +336,9 @@ public class Reports {
                 country);
     }
 
-    /** R30: Population of a district. */
+    /**
+     * R30: Population of a district.
+     */
     public static void r30(Connection connection, String district) throws SQLException {
         executeQuery(
                 connection,
@@ -296,7 +347,9 @@ public class Reports {
                 district);
     }
 
-    /** R31: Population of a city. */
+    /**
+     * R31: Population of a city.
+     */
     public static void r31(Connection connection, String city) throws SQLException {
         executeQuery(
                 connection,
@@ -348,9 +401,6 @@ public class Reports {
     private static void executeQuery(Connection connection, String sql, Object... parameters)
             throws SQLException {
 
-        // Create a table model
-        DefaultTableModel model = new DefaultTableModel();
-
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             for (int i = 0; i < parameters.length; i++) {
                 statement.setObject(i + 1, parameters[i]);
@@ -360,7 +410,6 @@ public class Reports {
 
             try {
 
-               /*
                 ResultSetMetaData metadata = results.getMetaData();
                 int columnCount = metadata.getColumnCount();
 
@@ -381,56 +430,11 @@ public class Reports {
                     }
                     System.out.println();
                 }
-                */
 
-                // Execute a SELECT query and get the result set
-                // query = runQuery;
-                ResultSetMetaData metaData = results.getMetaData();
-                int columnCount = metaData.getColumnCount();
-                String[] columnNames = new String[columnCount];
-                for (int i = 1; i <= columnCount; i++)
-                    columnNames[i - 1] = metaData.getColumnName(i);
-
-                model.setColumnIdentifiers(columnNames);
-
-                // Add the rows to the table model
-                while (results.next()) {
-                    Object[] row = new Object[columnCount];
-                    for (int i = 1; i <= columnCount; i++)
-                        row[i - 1] = results.getObject(i);
-
-                    model.addRow(row);
-                }
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
-            } finally {
-                try {
-                    if (results != null) results.close();
-                    if (statement != null) statement.close();
-                } catch (SQLException e) {
-                    System.out.println(e.getMessage());
-                }
             }
 
-            // Create the JTable and set the model
-            JTable table = new JTable(model);
-
-            // Add the table to a scroll pane
-            // Create the scroll pane and add the table to it
-            JScrollPane scrollPane = new JScrollPane(table);
-
-            // Create the frame and add the scroll pane to it
-            JFrame frame = new JFrame("Report");
-            frame.add(scrollPane);
-
-            // Set the size and location of the frame
-            frame.setSize(500, 300);
-            frame.setLocationRelativeTo(null);
-
-            // Make the frame visible
-            frame.setVisible(true);
-
-            }
         }
     }
-
+}
