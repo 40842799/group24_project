@@ -8,6 +8,7 @@ import javax.swing.table.TableModel;
 // import java.awt.*;
 
 public class Report {
+    String query;
     private JTable table;
     private DefaultTableModel model;
 
@@ -41,81 +42,65 @@ public class Report {
 
     }
 
-    public void reportPrint(String s) throws java.sql.SQLException {
+    public void connectRunQuery(String runQuery) throws java.sql.SQLException {
+
+        // Create a table model
+        DefaultTableModel model = new DefaultTableModel();
+
+        // Execute a SELECT query and get the result set
+        query = runQuery;
+        // Statement stat = null;
+        // ResultSet results = null;
+
         try {
-
-            results = statement.executeQuery(s);
-
-            // Create table model
-            model = new DefaultTableModel();
-
-           // setSize(800, 400);
-           // setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-           // setLocationRelativeTo(null);
-
-            // Get column information
-            ResultSetMetaData metaData = results.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            // Add column names to JTable
-            for (int i = 1; i <= columnCount; i++) {
-                model.addColumn(metaData.getColumnLabel(i));
-            }
-
-            // Add rows from ResultSet
-            while (results.next()) {
-
-                Object[] row = new Object[columnCount];
-
-                for (int i = 1; i <= columnCount; i++) {
-                    row[i - 1] = results.getObject(i);
-                }
-
-                model.addRow(row);
-            }
+            statement = connection.createStatement();
+            results = statement.executeQuery(query);
 
             // Get the column names
-            ResultSetMetaData md = results.getMetaData();
-            columnCount = md.getColumnCount();
+            ResultSetMetaData metaData = results.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            String[] columnNames = new String[columnCount];
+            for (int i = 1; i <= columnCount; i++)
+                columnNames[i - 1] = metaData.getColumnName(i);
 
-            for (int i = 1; i <= columnCount; i++) {
-                model.addColumn(md.getColumnLabel(i));
-            }
+            model.setColumnIdentifiers(columnNames);
 
-            /*
-            results.next() moves to the next database record.
-            results.getObject(i) reads a column value.
-            model.addRow(row) inserts that record into the JTable.
-            */
-
+            // Add the rows to the table model
             while (results.next()) {
                 Object[] row = new Object[columnCount];
-
-                for (int i = 1; i <= columnCount; i++) {
+                for (int i = 1; i <= columnCount; i++)
                     row[i - 1] = results.getObject(i);
-                }
 
                 model.addRow(row);
-
-                // Create JTable
-                table = new JTable(model);
-
-                // Add table to scroll pane
-                JScrollPane scrollPane = new JScrollPane(table);
-                // add(scrollPane, BorderLayout.CENTER);
-
-                JOptionPane.showMessageDialog(null, model, "Print Report", JOptionPane.INFORMATION_MESSAGE);
             }
-
-        } catch (
-                SQLException ex) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Database Error: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                if (results != null) results.close();
+                if (statement != null) statement.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
         }
+
+        // Create the JTable and set the model
+        JTable table = new JTable(model);
+
+        // Add the table to a scroll pane
+        // Create the scroll pane and add the table to it
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        // Create the frame and add the scroll pane to it
+        JFrame frame = new JFrame("Report");
+        frame.add(scrollPane);
+
+        // Set the size and location of the frame
+        frame.setSize(500, 300);
+        frame.setLocationRelativeTo(null);
+
+        // Make the frame visible
+        frame.setVisible(true);
 
     }
 
