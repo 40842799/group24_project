@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
 /**
  * Population reports against the MySQL World sample database.
  * Column sets follow the SET09803 assessment brief.
@@ -345,12 +348,19 @@ public class Reports {
     private static void executeQuery(Connection connection, String sql, Object... parameters)
             throws SQLException {
 
+        // Create a table model
+        DefaultTableModel model = new DefaultTableModel();
+
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             for (int i = 0; i < parameters.length; i++) {
                 statement.setObject(i + 1, parameters[i]);
             }
 
-            try (ResultSet results = statement.executeQuery()) {
+            ResultSet results = statement.executeQuery();
+
+            try {
+
+               /*
                 ResultSetMetaData metadata = results.getMetaData();
                 int columnCount = metadata.getColumnCount();
 
@@ -371,7 +381,56 @@ public class Reports {
                     }
                     System.out.println();
                 }
+                */
+
+                // Execute a SELECT query and get the result set
+                // query = runQuery;
+                ResultSetMetaData metaData = results.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                String[] columnNames = new String[columnCount];
+                for (int i = 1; i <= columnCount; i++)
+                    columnNames[i - 1] = metaData.getColumnName(i);
+
+                model.setColumnIdentifiers(columnNames);
+
+                // Add the rows to the table model
+                while (results.next()) {
+                    Object[] row = new Object[columnCount];
+                    for (int i = 1; i <= columnCount; i++)
+                        row[i - 1] = results.getObject(i);
+
+                    model.addRow(row);
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            } finally {
+                try {
+                    if (results != null) results.close();
+                    if (statement != null) statement.close();
+                } catch (SQLException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+
+            // Create the JTable and set the model
+            JTable table = new JTable(model);
+
+            // Add the table to a scroll pane
+            // Create the scroll pane and add the table to it
+            JScrollPane scrollPane = new JScrollPane(table);
+
+            // Create the frame and add the scroll pane to it
+            JFrame frame = new JFrame("Report");
+            frame.add(scrollPane);
+
+            // Set the size and location of the frame
+            frame.setSize(500, 300);
+            frame.setLocationRelativeTo(null);
+
+            // Make the frame visible
+            frame.setVisible(true);
+
             }
         }
     }
-}
+

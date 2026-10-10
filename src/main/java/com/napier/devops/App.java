@@ -45,80 +45,6 @@ public class App {
                 }
             }
 
-            Report r = new Report();
-
-            r.createConnection();
-            
-            int choice, N;
-            System.out.println("1. All the countries in the world organised by largest population to smallest.");
-            System.out.println("2. All the countries in a continent organised by largest population to smallest.");
-            System.out.println("3. All the countries in a region organised by largest population to smallest");
-            System.out.print("4. The top `N` populated countries in the world ");
-            System.out.print("\t5.  populated countries in a continent");
-            System.out.print("\t6.  populated countries in a region");
-            System.out.println("7. All the cities in the world organised by largest population to smallest");
-            System.out.println("8. All the cities in a continent organised by largest population to smallest.");
-            System.out.println("9. All the cities in a region organised by largest population to smallest");
-            System.out.println("10. All the cities in a country organised by largest population to smallest.");
-            System.out.println("11. All the cities in a district organised by largest population to smallest");
-            System.out.println("12. The top `N` populated cities in the world");
-            System.out.println("13. populated cities in a continent ");
-            System.out.println("14. The top `N` populated cities in a region");
-            System.out.println("15. The top `N` populated cities in a country ");
-            System.out.println("16. The top `N` populated cities in a district");
-            System.out.println("17. All the capital cities in the world organised by largest population to smallest");
-            System.out.println("18. All the capital cities in a continent organised by largest population to smallest");
-            System.out.println("19. All the capital cities in a region organised by largest to smallest");
-            System.out.println("20. The top `N` populated capital cities in the world");
-            System.out.println("21. The top `N` populated capital cities in a continent ");
-            System.out.println("22. The top `N` populated capital cities in a region ");
-            System.out.println("23. The population of people, people living in cities, and people not living in cities in each continent");
-            System.out.println("24. The population of people, people living in cities, and people not living in cities in each region");
-            System.out.println("25. The population of people, people living in cities, and people not living in cities in each country.");
-            Scanner s = new Scanner(System.in);
-
-            System.out.print("Give your choice number, Which report you want to generate ? ");
-            choice = s.nextInt();
-            switch (choice) {
-                case 1:
-                    r.connectRunQuery("SELECT Code, Name, Continent, Region, Population, Capital FROM country ORDER BY Population DESC");
-                    break;
-                case 2:
-                    r.connectRunQuery("SELECT DISTINCT country.Code, country.Name, country.Continent, country.Region, country.Population, city.Name FROM country JOIN city ON country.Code = city.CountryCode WHERE Continent = ANY(SELECT Continent FROM country) ORDER BY Population DESC");
-                    break;
-                case 3:
-                    r.connectRunQuery("SELECT Code, Name, Continent, Region, Population, Capital FROM country WHERE Region = ANY(SELECT Region FROM country)  ORDER BY Population DESC ");
-                    break;
-                case 4:
-                    System.out.print("How many top record for which you want to generate report?");
-                    N = s.nextInt();
-
-                    r.connectRunQuery("SELECT Code, Name, Continent, Region, Population, Capital FROM country  ORDER BY Population DESC LIMIT 0, " + N);
-                    break;
-                case 5:
-                    System.out.print("How many top record for which you want to generate report?");
-                    N = s.nextInt();
-
-                    r.connectRunQuery("SELECT Code, Name, Continent, Region, Population, Capital FROM country  WHERE Continent = ANY(SELECT Continent FROM country) ORDER BY Population DESC LIMIT 0, " + N);
-                    break;
-                case 6:
-                    System.out.print("How many top record for which you want to generate report?");
-                    N = s.nextInt();
-
-                    r.connectRunQuery("SELECT Code, Name, Continent, Region, Population, Capital FROM country  WHERE Region = ANY(SELECT Region FROM country) ORDER BY Population DESC LIMIT 0, " + N);
-                    break;
-                case 7:
-                    r.connectRunQuery("SELECT city.Name AS `CITY NAME`, country.Name AS `COUNTRY NAME`, city.District, city.Population  FROM city JOIN country ON country.Code = city.CountryCode  ORDER BY city.Population DESC");
-                    break;
-                case 8:
-                    r.connectRunQuery("SELECT city.Name AS 'CITY NAME',  country.Name AS 'COUNTRY NAME', city.District, city.Population FROM city JOIN country ON country.Code = city.CountryCode  WHERE country.Continent = ANY(SELECT Continent FROM country)  ORDER BY city.Population DESC");
-                    break;
-                case 9:
-                    r.connectRunQuery("SELECT city.Name AS CITY NAME,  country.Name AS `COUNTRY NAME`, city.District,  city.Population  FROM city  JOIN country ON country.Code = city.CountryCode  WHERE country.Region = ANY(SELECT Region FROM country) ORDER BY city.Population DESC");
-                    break;
-            }
-
-            /*
             run("All the countries in the world organised by largest population to smallest.",
                     () -> r1(connection), scanner, isInteractive);
 
@@ -214,7 +140,7 @@ public class App {
 
             run("Number of people who speak Chinese, English, Hindi, Spanish, Arabic.",
                     () -> r32(connection), scanner, isInteractive);
-             */
+
         }
     }
 
