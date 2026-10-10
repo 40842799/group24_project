@@ -1,9 +1,9 @@
-# USE CASE UC6: Generate Major-Language Report
+# USE CASE UC6: Generate Major-Language Population Report
 
 ## CHARACTERISTIC INFORMATION
 
 ### Goal in Context
-As an *Organization Analyst* I want to *view the number of people speaking Chinese, English, Hindi, Spanish, and Arabic (sorted greatest to smallest) along with global percentages* so that *I can analyze global language dominance.*
+As a *Reporting User* I want to *view the number of people speaking Chinese, English, Hindi, Spanish, and Arabic (sorted greatest to smallest) along with global percentages* so that *I can analyze global language dominance.*
 
 ### Epic Reference
 
@@ -19,11 +19,11 @@ Primary Level.
 
 ### Primary Actor
 
-Organization Data Analyst.
+Reporting User.
 
 ### Preconditions
 
-The Organization Analyst has access to the Global Demographic Database. Database is up-to-date.
+The Reporting User has access to the Global Demographic Database. Database is up-to-date.
 
 ### Success End Condition
 
@@ -35,13 +35,13 @@ No report is produced.
 
 ### Trigger
 
-The actor selects the 'Language Population' option from the system's navigation menu
+The Reporting User selects the 'Language Population' option from the system's navigation menu
 
 ## MAIN SUCCESS SCENARIO
 
 **This maps with the Requirement R32: Report Major Language Speakers**
-1. Data Analyst navigates to the Major Language Population section of system.
-2. Data Analyst requests language report.
+1. The Reporting User navigates to the Major Language Population section of system.
+2. The Reporting User requests language report.
 3. System retrieves the total global population for each major language.
 4. System retrieves overall total global population
 5. System calculates the percentage of the world population that speaks each language.
