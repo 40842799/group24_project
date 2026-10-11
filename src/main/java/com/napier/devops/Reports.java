@@ -264,20 +264,46 @@ public class Reports {
      * R23: People / in cities / not in cities for each continent (with %).
      */
     public static void r23(Connection connection) throws SQLException {
-        executeQuery(connection, populationBreakdownSql("country.Continent", "Continent"));
+        String sql = "SELECT cou.Continent AS Continent, SUM(cou.Population) AS PeoplePopulation, SUM(cit.Population) AS " +
+                     " LivinginCityPopulation, SUM(cou.Population) - SUM(cit.Population) AS NotLivingInPopulation FROM "  +
+                     " country cou LEFT JOIN city cit ON cou.Code = cit.CountryCode " +
+                     " GROUP BY cou.Continent ";
+
+        executeQuery(connection, sql);
+
+        // executeQuery(connection, populationBreakdownSql("country.Continent", "Continent"));
     }
 
     /**
      * R24: People / in cities / not in cities for each region (with %).
      */
     public static void r24(Connection connection) throws SQLException {
-        executeQuery(connection, populationBreakdownSql("country.Region", "Region"));
+        String sql = "SELECT cou.Region AS Region, SUM(cou.Population) AS PeoplePopulation, SUM(cit.Population) AS " +
+                " LivinginCityPopulation, SUM(cou.Population) - SUM(cit.Population) AS NotLivingInPopulation FROM "  +
+                " country cou LEFT JOIN city cit ON cou.Code = cit.CountryCode " +
+                " GROUP BY cou.Region ";
+        executeQuery(connection, sql);
+
+        // executeQuery(connection, populationBreakdownSql("country.Region", "Region"));
     }
 
     /**
      * R25: People / in cities / not in cities for each country (with %).
      */
     public static void r25(Connection connection) throws SQLException {
+
+        String sql =
+                "SELECT cou.Name AS Country, " +
+                " SUM(cou.Population) AS PeoplePopulation, " +
+                " SUM(cit.Population) AS LivinginCityPopulation, " +
+                " SUM(cou.Population) - SUM(cit.Population) " +
+                " AS NotLivingInPopulation FROM country cou " +
+                " LEFT JOIN city cit ON cou.Code = cit.CountryCode " +
+                " GROUP BY cou.Name ORDER by cou.Name ";
+
+        executeQuery(connection, sql);
+
+        /*
         String sql =
                 "SELECT country.Name AS Country, "
                         + "country.Population AS TotalPopulation, "
@@ -295,6 +321,7 @@ public class Reports {
                         + ") city_totals ON city_totals.CountryCode = country.Code "
                         + "ORDER BY country.Population DESC, country.Name ASC";
         executeQuery(connection, sql);
+        */
     }
 
     /**
@@ -322,7 +349,7 @@ public class Reports {
         executeQuery(
                 connection,
                 "SELECT Region, SUM(Population) AS Population "
-                        + "FROM country WHERE Region = ? GROUP BY Region",
+                  + " FROM country WHERE region = ? GROUP BY Region ",
                 region);
     }
 
@@ -365,6 +392,17 @@ public class Reports {
      * with percentage of world population, greatest to smallest.
      */
     public static void r32(Connection connection) throws SQLException {
+        String sql = " SELECT cl.Language, SUM(co.population * cl.Percentage / 100) AS NoOfPeople, " +
+                     " ROUND( SUM(co.Population * cl.Percentage / 100) * 100.0 " +
+                     " / ( SELECT SUM(Population) FROM country ), 2 ) AS WorldPercentage " +
+                     " FROM countrylanguage cl, country co WHERE cl.countrycode = co.code " +
+                     " GROUP BY cl.language " +
+                     " HAVING cl.language IN ('Chinese','English', 'Hindi', 'Spanish', 'Arabic') " +
+                     " ORDER BY NoOfPeople DESC, cl.language ASC";
+
+        executeQuery(connection, sql);
+
+        /*
         String sql =
                 "SELECT countrylanguage.Language, "
                         + "ROUND(SUM(country.Population * countrylanguage.Percentage / 100)) "
@@ -379,10 +417,12 @@ public class Reports {
                         + "('Chinese', 'English', 'Hindi', 'Spanish', 'Arabic') "
                         + "GROUP BY countrylanguage.Language "
                         + "ORDER BY Speakers DESC";
-        executeQuery(connection, sql);
+         */
     }
 
+    /*
     private static String populationBreakdownSql(String groupExpr, String label) {
+
         return "SELECT " + groupExpr + " AS `" + label + "`, "
                 + "SUM(country.Population) AS TotalPopulation, "
                 + "COALESCE(SUM(city_totals.CityPopulation), 0) AS CityPopulation, "
@@ -399,7 +439,8 @@ public class Reports {
                 + ") city_totals ON city_totals.CountryCode = country.Code "
                 + "GROUP BY " + groupExpr + " "
                 + "ORDER BY " + groupExpr;
-    }
+        }
+        */
 
     private static void executeQuery(Connection connection, String sql, Object... parameters)
             throws SQLException {
