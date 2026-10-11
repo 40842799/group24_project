@@ -1,101 +1,78 @@
-# USE CASE UC1: Generate Country Reports
+## USE CASE UC1: Generate Country Reports
 
-## CHARACTERISTIC INFORMATION
+### CHARACTERISTIC INFORMATION
 
-### Goal in Context
+#### Goal in Context
+  
+As a _Reporting User_ I want to _view a report of all countries meeting a specified criteria (in a continent, region, or the world) sorted by population (largest to smallest)_ so that _I can assess global demographic distribution._
 
-As a *Reporting User* I want to *view a report of all countries meeting a specified criteria (in a continent, region, or the world) sorted by population (largest to smallest)* so that *I can assess global demographic distribution.*
-
-
-### Epic Reference
-
+#### Epic Reference
+  
 Epic 1: Country Reports
 
-### Scope
-
+#### Scope
+  
 Global Population Reporting System
 
-### Level
-
+#### Level
+  
 Primary Level.
 
-### Primary Actor
-
+#### Primary Actor
+  
 Reporting User.
 
-### Preconditions
+#### Preconditions
+  
+The World database is running and the application has been given its connection details. The data in the database is up to date.
 
-The Reporting User has access to the Global Demographic Database. Database is up-to-date.
+#### Success End Condition
+  
+The country reports are displayed in the command-line terminal, sorted in descending order of population.
 
-### Success End Condition
-
-A report with results sorted in descending order of population is generated.
-
-### Failed End Condition
-
+#### Failed End Condition
+  
 No report is produced.
 
-### Trigger
+#### Trigger
+  
+The Reporting User starts the application from the command line.
 
-The Reporting User selects the 'Country Population' option from the system's navigation menu.
+### MAIN SUCCESS SCENARIO
 
-## MAIN SUCCESS SCENARIO
+**This maps to Requirements R01, R02 and R03: Countries in the World, a Continent and a Region**
+1. The Reporting User starts the application from the command line. The user may optionally supply their own values for the report inputs (see Alternative Flows). Any input not supplied uses its default value.
+2. System checks the supplied values.
+3. System connects to the World database.
+4. System retrieves the country records for the current report and sorts them in descending order of population.
+5. System displays the report in a table with column headers: Code, Name, Continent, Region, Population, and Capital.
+6. System moves on to the next country report and repeats steps 4 and 5 until all country reports have been displayed. When run in an interactive terminal, the system waits for the Reporting User to press Enter between reports.
 
-1. The Reporting User navigates to country population section of system.
-2. System displays filter options (Global, Continent, or Region) and an input option for row limit (N)
-3. The Reporting User selects one of the filters, leaves row limit blank, and requests report.
-4. System filters database to retrieve only country population records matching the criteria specified.
-5. System sorts retrieved population records in descending order.
-6. System displays report in a table with column headers: Code, Name, Continent, Region, Population, and Capital.
+### ALTERNATIVE FLOWS
 
+- **The Reporting User supplies a continent name** (default: Europe)
+  - System uses this continent for the "countries in a continent" reports (R02 and R05).
+  - This flow resumes at Step 2 of the Main Flow.
+- **The Reporting User supplies a region name** (default: Western Europe)
+  - System uses this region for the "countries in a region" reports (R03 and R06).
+  - This flow resumes at Step 2 of the Main Flow.
+- **The Reporting User supplies a row limit (N)** (default: 5)
+  - **This maps to Requirements R04, R05 and R06: Top N Countries in the World, a Continent and a Region**
+  - N is a positive whole number chosen by the user. It is not hard-coded.
+  - System sorts the matching records in descending order of population and displays only the first _N_ countries.
+  - This flow resumes at Step 5 of the Main Flow.
 
+### EXCEPTION FLOWS
 
-## ALTERNATIVE FLOWS 
+- **Invalid input. The Reporting User supplies N as zero, a negative number or a non-whole number, or supplies an option the system does not recognise:**
+  - System displays an error message and a short guide on how to use the application.
+  - No report is produced. The Reporting User can start the application again with corrected values.
+- **The database cannot be reached:**
+  - System displays an error message.
+  - No report is produced.
+- **No countries match the continent or region supplied (for example, a misspelt name):**
+  - System displays the report with its column headers and no rows.
 
-3. The Reporting User selects one of the following filter options:  
-
-     a. World  
-     **This maps to Requirement R01: List of Countries in the World** 
-      1. The Reporting User selects Global filter and requests report.  
-      2. System retrieves all country population records from database.  
-      This flow resumes at Step 5 of the Main Flow  
-
-    b. Continent    
-    **This maps to Requirement R02: List of Countries in a Continent**    
-      1. The Reporting User selects Continent and requests report.  
-      2. System prompts the Reporting User to enter a continent name.  
-      3. The Reporting User enters a specific continent name. 
-      4. System filters database to retrieve only country population records matching the specified continent.  
-      This flow resumes at Step 5 of the Main Flow
-
-   c. Region  
-   **This maps to Requirement R03: Countries in a Region**   
-    1. The Reporting User selects Region and requests report.  
-    2. System prompts the Reporting User to enter a region name.  
-    3. The Reporting User enters a specific region name  
-    4. System filters database to retrieve only country population records matching the specified region.  
-   This flow resumes at Step 5 of the Main Flow
-
-
-3. The Reporting User, in addition to selecting a filter, enters a positive integer for row limit (N)  
-   **This maps to Requirements R04, R05, and R06**
-    1. System filters database to retrieve only country population records matching the criteria specified.
-    2. The System sorts all records in descending order    
-    3. The System retrieves only the first *N* countries  
-   This flow resumes at Step 6 of the Main Flow
-
-## EXCEPTION FLOWS
-
-3. **No Data is found for specified filter**:
-    1. System displays error message "No data found for the specified location. Please check your selection".
-    2. System allows the Reporting User to re-enter filter.
-
-3. **Invalid Input for Row Limit (N). The Reporting User inputs a negative integer, noninteger, or zero:**
-    1. System Displays error message: "Row Limit  is invalid. Please try again"
-    2. System allows the Reporting User to re-enter row limit (N)
-
-
-
-## SCHEDULE
-
+### SCHEDULE
+  
 **DUE DATE**: Release 1.0
