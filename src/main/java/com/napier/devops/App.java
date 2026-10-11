@@ -206,7 +206,9 @@ public class App {
             this.city = city;
         }
 
-        /** Reads {@code --name=value} arguments; throws IllegalArgumentException for anything invalid. */
+        /**
+         * Reads {@code --name=value} arguments; throws IllegalArgumentException for anything invalid.
+         */
         static Settings parse(String[] args) {
             int n = DEFAULT_N;
             String continent = DEFAULT_CONTINENT;

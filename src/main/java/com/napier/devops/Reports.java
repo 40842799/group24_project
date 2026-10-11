@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Population reports against the MySQL World sample database.
@@ -365,6 +366,7 @@ public class Reports {
      * with percentage of world population, greatest to smallest.
      */
     public static void r32(Connection connection) throws SQLException {
+
         String sql =
                 "SELECT countrylanguage.Language, "
                         + "ROUND(SUM(country.Population * countrylanguage.Percentage / 100)) "
@@ -380,10 +382,11 @@ public class Reports {
                         + "GROUP BY countrylanguage.Language "
                         + "ORDER BY Speakers DESC";
         executeQuery(connection, sql);
+
     }
 
-    private static String populationBreakdownSql(String groupExpr, String label) {
-        return "SELECT " + groupExpr + " AS `" + label + "`, "
+    private static String populationBreakdownSql(String grpExpr, String lbl) {
+        return "SELECT " + grpExpr + " AS `" + lbl + "`, "
                 + "SUM(country.Population) AS TotalPopulation, "
                 + "COALESCE(SUM(city_totals.CityPopulation), 0) AS CityPopulation, "
                 + "ROUND(COALESCE(SUM(city_totals.CityPopulation), 0) * 100.0 "
@@ -397,12 +400,74 @@ public class Reports {
                 + "  SELECT CountryCode, SUM(Population) AS CityPopulation "
                 + "  FROM city GROUP BY CountryCode"
                 + ") city_totals ON city_totals.CountryCode = country.Code "
-                + "GROUP BY " + groupExpr + " "
-                + "ORDER BY " + groupExpr;
+                + "GROUP BY " + grpExpr + " "
+                + "ORDER BY " + grpExpr;
     }
 
     private static void executeQuery(Connection connection, String sql, Object... parameters)
             throws SQLException {
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < parameters.length; i++) {
+                statement.setObject(i + 1, parameters[i]);
+            }
+
+            ResultSet results = statement.executeQuery();
+
+            try {
+
+                ResultSetMetaData data = results.getMetaData();
+                int columns = data.getColumnCount();
+
+                String[] columnTitle = new String[columns];
+                int[] columnSize = new int[columns];
+
+                // Get column names and initial widths
+                for (int i = 0; i < columns; i++) {
+                    columnTitle[i] = data.getColumnLabel(i + 1);
+                    columnSize[i] = columnTitle[i].length();
+
+                    //  int type = mdata.getColumnType(i + 1);
+
+                }
+
+                // Read all rows and calculate column widths
+                List<String[]> records = new ArrayList<>();
+
+                while (results.next()) {
+                    String[] record = new String[columns];
+
+                    for (int i = 0; i < columns; i++) {
+                        record[i] = results.getString(i + 1);
+
+                        if (record[i] == null) {
+                            record[i] = "NULL";
+                        }
+
+                        columnSize[i] = Math.max(columnSize[i], record[i].length());
+                    }
+
+                    records.add(record);
+                }
+
+                // Display column Title
+                recordPrint(columnTitle, columnSize);//, numeric);
+                displayLine(columnSize);
+
+                // Print data
+                for (String[] row : records) {
+                    recordPrint(row, columnSize);//, numeric);
+                }
+
+                displayLine(columnSize);
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        /*
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             for (int i = 0; i < parameters.length; i++) {
@@ -440,5 +505,33 @@ public class Reports {
             }
 
         }
+
+        */
     }
+
+    // Print a record using calculated widths
+    static void recordPrint(String[] dataValues, int[] colWidth)//, boolean[] numeric)
+    {
+        for (int i = 0; i < dataValues.length; i++) {
+            if ( (Character.isDigit(dataValues[i].charAt(0))) || (Character.isDigit(dataValues[i].charAt(1))) )
+                System.out.printf("| %" + colWidth[i] + "s ", dataValues[i]);
+            else
+                // Numeric Alignment
+                System.out.printf("| %-" + colWidth[i] + "s ", dataValues[i]);
+        }
+
+        System.out.println("|");
+    }
+
+    //   separator line
+    static void displayLine(int[] widths) {
+        for (int width : widths) {
+            System.out.print("+-");
+            System.out.print("-".repeat(width));
+            System.out.print("-");
+        }
+        System.out.println("+");
+    }
+
+
 }
