@@ -56,7 +56,9 @@ The following software is required:
 ```bash
 git clone https://github.com/40842799/group24_project.git
 cd group24_project
+mvn clean package
 ```
+You must run `mvn clean package` first, because the Dockerfile copies `target/devopsApp.jar`, and that folder is not stored in Git.
 
 ### Run Using Docker Compose
 
