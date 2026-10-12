@@ -1,4 +1,13 @@
 ## Group 24 DevOps Project
+
+[![Build master](https://img.shields.io/github/actions/workflow/status/40842799/group24_project/main.yml?branch=master&label=build%20master)](https://github.com/40842799/group24_project/actions/workflows/main.yml?query=branch%3Amaster)
+[![Build develop](https://img.shields.io/github/actions/workflow/status/40842799/group24_project/main.yml?branch=develop&label=build%20develop)](https://github.com/40842799/group24_project/actions/workflows/main.yml?query=branch%3Adevelop)
+
+[![Release](https://img.shields.io/github/v/release/40842799/group24_project?display_name=release)](https://github.com/40842799/group24_project/releases/latest)
+[![License](https://img.shields.io/github/license/40842799/group24_project)](LICENSE)
+
+SET09803 DevOps coursework project developed by Group 24 at Edinburgh Napier University.
+
   
 SET09803 DevOps coursework project developed by Group 24 at Edinburgh Napier University.
 
