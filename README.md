@@ -81,6 +81,45 @@ To change a value, add it after the application name in the form --name=value. Y
 
 If a value contains spaces, put it in quotes, for example --region="Eastern Asia".
 
+#### Requirements Met
+
+32 requirements of 32 have been implemented, which is 100%.
+
+| ID | Name | Met | Screenshot |
+|----|------|-----|------------|
+| 1 | All the countries in the world organised by largest population to smallest. | Yes | ![R1](docs/screenshots/r01.png) |
+| 2 | All the countries in a continent organised by largest population to smallest. | Yes | ![R2](docs/screenshots/r02.png) |
+| 3 | All the countries in a region organised by largest population to smallest. | Yes | ![R3](docs/screenshots/r03.png) |
+| 4 | The top N populated countries in the world where N is provided by the user. | Yes | ![R4](docs/screenshots/r04.png) |
+| 5 | The top N populated countries in a continent where N is provided by the user. | Yes | ![R5](docs/screenshots/r05.png) |
+| 6 | The top N populated countries in a region where N is provided by the user. | Yes | ![R6](docs/screenshots/r06.png) |
+| 7 | All the cities in the world organised by largest population to smallest. | Yes | ![R7](docs/screenshots/r07.png) |
+| 8 | All the cities in a continent organised by largest population to smallest. | Yes | ![R8](docs/screenshots/r08.png) |
+| 9 | All the cities in a region organised by largest population to smallest. | Yes | ![R9](docs/screenshots/r09.png) |
+| 10 | All the cities in a country organised by largest population to smallest. | Yes | ![R10](docs/screenshots/r10.png) |
+| 11 | All the cities in a district organised by largest population to smallest. | Yes | ![R11](docs/screenshots/r11.png) |
+| 12 | The top N populated cities in the world where N is provided by the user. | Yes | ![R12](docs/screenshots/r12.png) |
+| 13 | The top N populated cities in a continent where N is provided by the user. | Yes | ![R13](docs/screenshots/r13.png) |
+| 14 | The top N populated cities in a region where N is provided by the user. | Yes | ![R14](docs/screenshots/r14.png) |
+| 15 | The top N populated cities in a country where N is provided by the user. | Yes | ![R15](docs/screenshots/r15.png) |
+| 16 | The top N populated cities in a district where N is provided by the user. | Yes | ![R16](docs/screenshots/r16.png) |
+| 17 | All the capital cities in the world organised by largest population to smallest. | Yes | ![R17](docs/screenshots/r17.png) |
+| 18 | All the capital cities in a continent organised by largest population to smallest. | Yes | ![R18](docs/screenshots/r18.png) |
+| 19 | All the capital cities in a region organised by largest to smallest. | Yes | ![R19](docs/screenshots/r19.png) |
+| 20 | The top N populated capital cities in the world where N is provided by the user. | Yes | ![R20](docs/screenshots/r20.png) |
+| 21 | The top N populated capital cities in a continent where N is provided by the user. | Yes | ![R21](docs/screenshots/r21.png) |
+| 22 | The top N populated capital cities in a region where N is provided by the user. | Yes | ![R22](docs/screenshots/r22.png) |
+| 23 | The population of people, people living in cities, and people not living in cities in each continent. | Yes | ![R23](docs/screenshots/r23.png) |
+| 24 | The population of people, people living in cities, and people not living in cities in each region. | Yes | ![R24](docs/screenshots/r24.png) |
+| 25 | The population of people, people living in cities, and people not living in cities in each country. | Yes | ![R25](docs/screenshots/r25.png) |
+| 26 | The population of the world. | Yes | ![R26](docs/screenshots/r26.png) |
+| 27 | The population of a continent. | Yes | ![R27](docs/screenshots/r27.png) |
+| 28 | The population of a region. | Yes | ![R28](docs/screenshots/r28.png) |
+| 29 | The population of a country. | Yes | ![R29](docs/screenshots/r29.png) |
+| 30 | The population of a district. | Yes | ![R30](docs/screenshots/r30.png) |
+| 31 | The population of a city. | Yes | ![R31](docs/screenshots/r31.png) |
+| 32 | The number of people who speak Chinese, English, Hindi, Spanish and Arabic, from greatest to smallest, including the percentage of the world population. | Yes | ![R32](docs/screenshots/r32.png) |
+
 #### Changing the inputs with Docker Compose
 Start the database first and wait until it is ready, then run the application with your values:
 
