@@ -8,8 +8,6 @@
 
 SET09803 DevOps coursework project developed by Group 24 at Edinburgh Napier University.
 
-  
-SET09803 DevOps coursework project developed by Group 24 at Edinburgh Napier University.
 
 ### Project Overview
   
