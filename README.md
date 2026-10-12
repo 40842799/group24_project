@@ -55,7 +55,8 @@ The following software is required:
 #### Clone the Repository
 git clone https://github.com/40842799/group24\_project.git
 cd group24\_project
-mvn clean package  
+mvn clean package
+
 You must run mvn clean package first, because the Dockerfile copies target/devopsApp.jar, and that folder is not stored in Git.
 
 #### Run Using Docker Compose
@@ -104,11 +105,15 @@ java -jar target/devopsApp.jar --n=3 --continent=Asia
 ### Development Workflow
   
 Development is carried out using Git and GitHub.  
+
 The team uses:
 - master - main project branch
 - develop - integration and development branch
+- release - release preparation and validation branch
 - Feature branches - used for individual pieces of work  
-Changes are committed to feature branches and reviewed using pull requests before being merged into the shared development branch.
+
+Changes are committed to feature branches and reviewed using pull requests before being merged into develop. 
+Once development is frozen, changes are promoted to release for final verification and then merged into master for submission and release tagging.
 
 ### Product Backlog
   
@@ -126,6 +131,6 @@ GitHub Actions is used as part of the project's continuous integration workflow 
 
 ### Team
   
-Group 24
-SET09803 DevOps
+Group 24    
+SET09803 DevOps     
 Edinburgh Napier University
