@@ -1,0 +1,537 @@
+package com.napier.devops;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.*;
+
+/**
+ * Population reports against the MySQL World sample database.
+ * Column sets follow the SET09803 assessment brief.
+ */
+public class Reports {
+
+    // Country report: Code, Name, Continent, Region, Population, Capital (name)
+    private static final String COUNTRY_SELECT =
+            "SELECT country.Code, country.Name, country.Continent, country.Region, "
+                    + "country.Population, capital.Name AS Capital "
+                    + "FROM country "
+                    + "LEFT JOIN city AS capital ON capital.ID = country.Capital ";
+
+    // City report: Name, Country, District, Population
+    private static final String CITY_SELECT =
+            "SELECT city.Name, country.Name AS Country, city.District, city.Population "
+                    + "FROM city "
+                    + "JOIN country ON country.Code = city.CountryCode ";
+
+    // Capital city report: Name, Country, Population
+    private static final String CAPITAL_SELECT =
+            "SELECT city.Name, country.Name AS Country, city.Population "
+                    + "FROM country "
+                    + "JOIN city ON city.ID = country.Capital ";
+
+    /**
+     * R1: All countries in the world by population DESC.
+     */
+    public static void r1(Connection connection) throws SQLException {
+        executeQuery(connection, COUNTRY_SELECT + "ORDER BY country.Population DESC, country.Name ASC");
+    }
+
+    /**
+     * R2: All countries in a continent by population DESC.
+     */
+    public static void r2(Connection connection, String continent) throws SQLException {
+        executeQuery(
+                connection,
+                COUNTRY_SELECT + "WHERE country.Continent = ? ORDER BY country.Population DESC, country.Name ASC",
+                continent);
+    }
+
+    /**
+     * R3: All countries in a region by population DESC.
+     */
+    public static void r3(Connection connection, String region) throws SQLException {
+        executeQuery(
+                connection,
+                COUNTRY_SELECT + "WHERE country.Region = ? ORDER BY country.Population DESC, country.Name ASC",
+                region);
+    }
+
+    /**
+     * R4: Top N countries in the world.
+     */
+    public static void r4(Connection connection, int n) throws SQLException {
+        executeQuery(
+                connection,
+                COUNTRY_SELECT + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
+                n);
+    }
+
+    /**
+     * R5: Top N countries in a continent.
+     */
+    public static void r5(Connection connection, String continent, int n) throws SQLException {
+        executeQuery(
+                connection,
+                COUNTRY_SELECT
+                        + "WHERE country.Continent = ? "
+                        + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
+                continent,
+                n);
+    }
+
+    /**
+     * R6: Top N countries in a region.
+     */
+    public static void r6(Connection connection, String region, int n) throws SQLException {
+        executeQuery(
+                connection,
+                COUNTRY_SELECT
+                        + "WHERE country.Region = ? "
+                        + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
+                region,
+                n);
+    }
+
+    /**
+     * R7: All cities in the world by population DESC.
+     */
+    public static void r7(Connection connection) throws SQLException {
+        executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC, city.Name ASC");
+    }
+
+    /**
+     * R8: All cities in a continent by population DESC.
+     */
+    public static void r8(Connection connection, String continent) throws SQLException {
+        executeQuery(
+                connection,
+                CITY_SELECT + "WHERE country.Continent = ? ORDER BY city.Population DESC, city.Name ASC",
+                continent);
+    }
+
+    /**
+     * R9: All cities in a region by population DESC.
+     */
+    public static void r9(Connection connection, String region) throws SQLException {
+        executeQuery(
+                connection,
+                CITY_SELECT + "WHERE country.Region = ? ORDER BY city.Population DESC, city.Name ASC",
+                region);
+    }
+
+    /**
+     * R10: All cities in a country by population DESC.
+     */
+    public static void r10(Connection connection, String country) throws SQLException {
+        executeQuery(
+                connection,
+                CITY_SELECT + "WHERE country.Name = ? ORDER BY city.Population DESC, city.Name ASC",
+                country);
+    }
+
+    /**
+     * R11: All cities in a district by population DESC.
+     */
+    public static void r11(Connection connection, String district) throws SQLException {
+        executeQuery(
+                connection,
+                CITY_SELECT + "WHERE city.District = ? ORDER BY city.Population DESC, city.Name ASC",
+                district);
+    }
+
+    /**
+     * R12: Top N cities in the world.
+     */
+    public static void r12(Connection connection, int n) throws SQLException {
+        executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?", n);
+    }
+
+    /**
+     * R13: Top N cities in a continent.
+     */
+    public static void r13(Connection connection, String continent, int n) throws SQLException {
+        executeQuery(
+                connection,
+                CITY_SELECT
+                        + "WHERE country.Continent = ? "
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
+                continent,
+                n);
+    }
+
+    /**
+     * R14: Top N cities in a region.
+     */
+    public static void r14(Connection connection, String region, int n) throws SQLException {
+        executeQuery(
+                connection,
+                CITY_SELECT
+                        + "WHERE country.Region = ? "
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
+                region,
+                n);
+    }
+
+    /**
+     * R15: Top N cities in a country.
+     */
+    public static void r15(Connection connection, String country, int n) throws SQLException {
+        executeQuery(
+                connection,
+                CITY_SELECT
+                        + "WHERE country.Name = ? "
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
+                country,
+                n);
+    }
+
+    /**
+     * R16: Top N cities in a district.
+     */
+    public static void r16(Connection connection, String district, int n) throws SQLException {
+        executeQuery(
+                connection,
+                CITY_SELECT
+                        + "WHERE city.District = ? "
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
+                district,
+                n);
+    }
+
+    /**
+     * R17: All capital cities in the world by population DESC.
+     */
+    public static void r17(Connection connection) throws SQLException {
+        executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC, city.Name ASC");
+    }
+
+    /**
+     * R18: All capital cities in a continent by population DESC.
+     */
+    public static void r18(Connection connection, String continent) throws SQLException {
+        executeQuery(
+                connection,
+                CAPITAL_SELECT + "WHERE country.Continent = ? ORDER BY city.Population DESC, city.Name ASC",
+                continent);
+    }
+
+    /**
+     * R19: All capital cities in a region by population DESC.
+     */
+    public static void r19(Connection connection, String region) throws SQLException {
+        executeQuery(
+                connection,
+                CAPITAL_SELECT + "WHERE country.Region = ? ORDER BY city.Population DESC, city.Name ASC",
+                region);
+    }
+
+    /**
+     * R20: Top N capital cities in the world.
+     */
+    public static void r20(Connection connection, int n) throws SQLException {
+        executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?", n);
+    }
+
+    /**
+     * R21: Top N capital cities in a continent.
+     */
+    public static void r21(Connection connection, String continent, int n) throws SQLException {
+        executeQuery(
+                connection,
+                CAPITAL_SELECT
+                        + "WHERE country.Continent = ? "
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
+                continent,
+                n);
+    }
+
+    /**
+     * R22: Top N capital cities in a region.
+     */
+    public static void r22(Connection connection, String region, int n) throws SQLException {
+        executeQuery(
+                connection,
+                CAPITAL_SELECT
+                        + "WHERE country.Region = ? "
+                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
+                region,
+                n);
+    }
+
+    /**
+     * R23: People / in cities / not in cities for each continent (with %).
+     */
+    public static void r23(Connection connection) throws SQLException {
+        executeQuery(connection, populationBreakdownSql("country.Continent", "Continent"));
+    }
+
+    /**
+     * R24: People / in cities / not in cities for each region (with %).
+     */
+    public static void r24(Connection connection) throws SQLException {
+        executeQuery(connection, populationBreakdownSql("country.Region", "Region"));
+    }
+
+    /**
+     * R25: People / in cities / not in cities for each country (with %).
+     */
+    public static void r25(Connection connection) throws SQLException {
+        String sql =
+                "SELECT country.Name AS Country, "
+                        + "country.Population AS TotalPopulation, "
+                        + "COALESCE(city_totals.CityPopulation, 0) AS CityPopulation, "
+                        + "ROUND(COALESCE(city_totals.CityPopulation, 0) * 100.0 "
+                        + "/ NULLIF(country.Population, 0), 2) AS CityPercentage, "
+                        + "(country.Population - COALESCE(city_totals.CityPopulation, 0)) "
+                        + "AS NotInCitiesPopulation, "
+                        + "ROUND((country.Population - COALESCE(city_totals.CityPopulation, 0)) "
+                        + "* 100.0 / NULLIF(country.Population, 0), 2) AS NotInCitiesPercentage "
+                        + "FROM country "
+                        + "LEFT JOIN ("
+                        + "  SELECT CountryCode, SUM(Population) AS CityPopulation "
+                        + "  FROM city GROUP BY CountryCode"
+                        + ") city_totals ON city_totals.CountryCode = country.Code "
+                        + "ORDER BY country.Population DESC, country.Name ASC";
+        executeQuery(connection, sql);
+    }
+
+    /**
+     * R26: Population of the world.
+     */
+    public static void r26(Connection connection) throws SQLException {
+        executeQuery(connection, "SELECT SUM(Population) AS WorldPopulation FROM country");
+    }
+
+    /**
+     * R27: Population of a continent.
+     */
+    public static void r27(Connection connection, String continent) throws SQLException {
+        executeQuery(
+                connection,
+                "SELECT Continent, SUM(Population) AS Population "
+                        + "FROM country WHERE Continent = ? GROUP BY Continent",
+                continent);
+    }
+
+    /**
+     * R28: Population of a region.
+     */
+    public static void r28(Connection connection, String region) throws SQLException {
+        executeQuery(
+                connection,
+                "SELECT Region, SUM(Population) AS Population "
+                        + "FROM country WHERE Region = ? GROUP BY Region",
+                region);
+    }
+
+    /**
+     * R29: Population of a country.
+     */
+    public static void r29(Connection connection, String country) throws SQLException {
+        executeQuery(
+                connection,
+                "SELECT Name AS Country, Population FROM country WHERE Name = ?",
+                country);
+    }
+
+    /**
+     * R30: Population of a district.
+     */
+    public static void r30(Connection connection, String district) throws SQLException {
+        executeQuery(
+                connection,
+                "SELECT District, SUM(Population) AS Population "
+                        + "FROM city WHERE District = ? GROUP BY District",
+                district);
+    }
+
+    /**
+     * R31: Population of a city.
+     */
+    public static void r31(Connection connection, String city) throws SQLException {
+        executeQuery(
+                connection,
+                "SELECT city.Name AS City, country.Name AS Country, city.District, city.Population "
+                        + "FROM city JOIN country ON country.Code = city.CountryCode "
+                        + "WHERE city.Name = ? "
+                        + "ORDER BY city.Population DESC, country.Name ASC",
+                city);
+    }
+
+    /**
+     * R32: Speakers of Chinese, English, Hindi, Spanish, Arabic
+     * with percentage of world population, greatest to smallest.
+     */
+    public static void r32(Connection connection) throws SQLException {
+
+        String sql =
+                "SELECT countrylanguage.Language, "
+                        + "ROUND(SUM(country.Population * countrylanguage.Percentage / 100)) "
+                        + "AS Speakers, "
+                        + "ROUND("
+                        + "  SUM(country.Population * countrylanguage.Percentage / 100) * 100.0 "
+                        + "  / (SELECT SUM(Population) FROM country), 2"
+                        + ") AS WorldPercentage "
+                        + "FROM countrylanguage "
+                        + "JOIN country ON country.Code = countrylanguage.CountryCode "
+                        + "WHERE countrylanguage.Language IN "
+                        + "('Chinese', 'English', 'Hindi', 'Spanish', 'Arabic') "
+                        + "GROUP BY countrylanguage.Language "
+                        + "ORDER BY Speakers DESC";
+        executeQuery(connection, sql);
+
+    }
+
+    private static String populationBreakdownSql(String grpExpr, String lbl) {
+        return "SELECT " + grpExpr + " AS `" + lbl + "`, "
+                + "SUM(country.Population) AS TotalPopulation, "
+                + "COALESCE(SUM(city_totals.CityPopulation), 0) AS CityPopulation, "
+                + "ROUND(COALESCE(SUM(city_totals.CityPopulation), 0) * 100.0 "
+                + "/ NULLIF(SUM(country.Population), 0), 2) AS CityPercentage, "
+                + "(SUM(country.Population) - COALESCE(SUM(city_totals.CityPopulation), 0)) "
+                + "AS NotInCitiesPopulation, "
+                + "ROUND((SUM(country.Population) - COALESCE(SUM(city_totals.CityPopulation), 0)) "
+                + "* 100.0 / NULLIF(SUM(country.Population), 0), 2) AS NotInCitiesPercentage "
+                + "FROM country "
+                + "LEFT JOIN ("
+                + "  SELECT CountryCode, SUM(Population) AS CityPopulation "
+                + "  FROM city GROUP BY CountryCode"
+                + ") city_totals ON city_totals.CountryCode = country.Code "
+                + "GROUP BY " + grpExpr + " "
+                + "ORDER BY " + grpExpr;
+    }
+
+    private static void executeQuery(Connection connection, String sql, Object... parameters)
+            throws SQLException {
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < parameters.length; i++) {
+                statement.setObject(i + 1, parameters[i]);
+            }
+
+            ResultSet results = statement.executeQuery();
+
+            try {
+
+                ResultSetMetaData data = results.getMetaData();
+                int columns = data.getColumnCount();
+
+                String[] columnTitle = new String[columns];
+                int[] columnSize = new int[columns];
+
+                // Get column names and initial widths
+                for (int i = 0; i < columns; i++) {
+                    columnTitle[i] = data.getColumnLabel(i + 1);
+                    columnSize[i] = columnTitle[i].length();
+
+                    //  int type = mdata.getColumnType(i + 1);
+
+                }
+
+                // Read all rows and calculate column widths
+                List<String[]> records = new ArrayList<>();
+
+                while (results.next()) {
+                    String[] record = new String[columns];
+
+                    for (int i = 0; i < columns; i++) {
+                        record[i] = results.getString(i + 1);
+
+                        if (record[i] == null) {
+                            record[i] = "NULL";
+                        }
+
+                        columnSize[i] = Math.max(columnSize[i], record[i].length());
+                    }
+
+                    records.add(record);
+                }
+
+                // Display column Title
+                recordPrint(columnTitle, columnSize);//, numeric);
+                displayLine(columnSize);
+
+                // Print data
+                for (String[] row : records) {
+                    recordPrint(row, columnSize);//, numeric);
+                }
+
+                displayLine(columnSize);
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        /*
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < parameters.length; i++) {
+                statement.setObject(i + 1, parameters[i]);
+            }
+
+            ResultSet results = statement.executeQuery();
+
+            try {
+
+                ResultSetMetaData metadata = results.getMetaData();
+                int columnCount = metadata.getColumnCount();
+
+                for (int i = 1; i <= columnCount; i++) {
+                    System.out.print(metadata.getColumnLabel(i));
+                    if (i < columnCount) {
+                        System.out.print(" | ");
+                    }
+                }
+                System.out.println();
+
+                while (results.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        String value = results.getString(i);
+                        System.out.print(value == null ? "n/a" : value);
+                        if (i < columnCount) {
+                            System.out.print(" | ");
+                        }
+                    }
+                    System.out.println();
+                }
+
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+
+        }
+
+        */
+    }
+
+    // Print a record using calculated widths
+    static void recordPrint(String[] dataValues, int[] colWidth)//, boolean[] numeric)
+    {
+        for (int i = 0; i < dataValues.length; i++) {
+            if ( (Character.isDigit(dataValues[i].charAt(0))) || (Character.isDigit(dataValues[i].charAt(1))) )
+                System.out.printf("| %" + colWidth[i] + "s ", dataValues[i]);
+            else
+                // Numeric Alignment
+                System.out.printf("| %-" + colWidth[i] + "s ", dataValues[i]);
+        }
+
+        System.out.println("|");
+    }
+
+    //   separator line
+    static void displayLine(int[] widths) {
+        for (int width : widths) {
+            System.out.print("+-");
+            System.out.print("-".repeat(width));
+            System.out.print("-");
+        }
+        System.out.println("+");
+    }
+
+
+}
