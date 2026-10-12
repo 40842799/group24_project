@@ -8,6 +8,9 @@
 
 SET09803 DevOps coursework project developed by Group 24 at Edinburgh Napier University.
 
+  
+SET09803 DevOps coursework project developed by Group 24 at Edinburgh Napier University.
+
 ### Project Overview
   
 This project uses the MySQL World database to produce population and demographic reports for countries, cities, regions and languages.  
