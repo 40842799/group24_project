@@ -4,7 +4,7 @@
 
 #### Goal in Context
   
-As a _Reporting User_ I want to _view the number of people speaking Chinese, English, Hindi, Spanish, and Arabic (sorted greatest to smallest) along with global percentages_ so that _I can analyze global language dominance._
+As a _Population Data Analyst_ I want to _view the number of people speaking Chinese, English, Hindi, Spanish, and Arabic (sorted greatest to smallest) along with global percentages_ so that _I can analyze global language dominance._
 
 #### Epic Reference
   
@@ -20,7 +20,7 @@ Primary Level.
 
 #### Primary Actor
   
-Reporting User.
+Population Data Analyst.
 
 #### Preconditions
   
@@ -36,15 +36,15 @@ No report is produced.
 
 #### Trigger
   
-The Reporting User starts the application from the command line.
+The Population Data Analyst starts the application from the command line.
 
 ### MAIN SUCCESS SCENARIO
   
 **This maps to Requirement R32: Report Major Language Speakers**
 
-This use case needs no input values from the Reporting User. The five languages are fixed by the requirement.
+This use case needs no input values from the Population Data Analyst. The five languages are fixed by the requirement.
 
-1. The Reporting User starts the application from the command line.
+1. The Population Data Analyst starts the application from the command line.
 2. System connects to the World database.
 3. System calculates the number of people who speak each major language.
 4. System retrieves the total world population.
@@ -58,7 +58,7 @@ _None_
 
 ### EXCEPTION FLOWS
 
-- **The Reporting User supplies an option the system does not recognise:**
+- **The Population Data Analyst supplies an option the system does not recognise:**
   - System displays an error message and a short guide on how to use the application.
   - No report is produced.
 - **The database cannot be reached:**

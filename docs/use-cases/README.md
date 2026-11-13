@@ -11,7 +11,7 @@ The editable source for both pages is `use-case-diagram.drawio` (open in [diagra
 
 ## Actor
 
-**Reporting User** – a person acting for the organisation who needs to generate or retrieve population and demographic information held in the MySQL World database.
+**Population Data Analyst** – a person acting for the organisation who needs to generate or retrieve population and demographic information held in the MySQL World database.
 
 ## Use-case catalogue
 
