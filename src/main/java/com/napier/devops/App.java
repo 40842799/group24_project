@@ -2,19 +2,11 @@ package com.napier.devops;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Scanner;
 
-import static com.napier.devops.Reports.*;
-
-public class App {
+public class App
+{
     public static void main(String[] args) throws SQLException {
-        if (wantsHelp(args)) {
-            System.out.println(Settings.USAGE);
-            return;
-        }
         Settings settings;
         try {
             settings = Settings.parse(args);
@@ -25,152 +17,149 @@ public class App {
             return;
         }
 
-        String url = System.getenv("DB_URL");
-        String user = System.getenv("DB_USER");
-        String password = System.getenv("DB_PASSWORD");
+        //String url = "JDBC:mysql://localhost/world";
+        //String user = "root";
+        //String password = "";
 
-        if (url == null || user == null || password == null) {
-            throw new IllegalStateException(
-                    "Set DB_URL, DB_USER and DB_PASSWORD before running.");
-        }
+        final String continent = settings.continent;
+        final String region = settings.region;
+        final String country = settings.country;
+        final String district = settings.district;
+        final String city = settings.city;
+        final int n = settings.n;
 
-        // Report inputs. With no arguments these are the fixed demonstration values used in CI,
-        // so GitHub Actions and docker compose run unattended. Options override them.
-        final String demoContinent = settings.continent;
-        final String demoRegion = settings.region;
-        final String demoCountry = settings.country;
-        final String demoDistrict = settings.district;
-        final String demoCity = settings.city;
-        final int demoN = settings.n;
+        // Connection connection = DriverManager.getConnection(url, user, password)
 
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            Scanner scanner = null;
-            boolean isInteractive = System.console() != null;
-            if (isInteractive) {
-                scanner = new Scanner(System.in);
+        try {
+            // Instantiate PrintReport with the active connection
+            Reports report = new Reports();
+            activeReports = report;
+            if (settings.exportDir != null) {
+                report.setExportDir(java.nio.file.Paths.get(settings.exportDir));
             }
 
-            try (Statement statement = connection.createStatement();
-                 ResultSet results = statement.executeQuery(
-                         "SELECT COUNT(*) AS total FROM country")) {
-                if (results.next()) {
-                    System.out.println("Connected to the World database.");
-                    System.out.println("Countries: " + results.getInt("total"));
-                }
-            }
+            run("Report-1: All the countries in the world organised by largest population to smallest.",
+                    () -> report.printCountryReport(null, null, null));
 
-            run("R01: All the countries in the world organised by largest population to smallest.",
-                    () -> r1(connection), scanner, isInteractive);
+            run("Report-2: All the countries in the continent " + continent + " organised by largest population to smallest.",
+                    () -> report.printCountryReport("Continent", continent, null));
 
-            run("R02: All the countries in the continent " + demoContinent + " organised by largest population to smallest.",
-                    () -> r2(connection, demoContinent), scanner, isInteractive);
+            run("Report-3: All the countries in the region " + region + " organised by largest population to smallest.",
+                    () -> report.printCountryReport("Region", region, null));
 
-            run("R03: All the countries in the region " + demoRegion + " organised by largest population to smallest.",
-                    () -> r3(connection, demoRegion), scanner, isInteractive);
+            run("Report-4: The top " + n + " populated countries in the world.",
+                    () -> report.printCountryReport(null, null, n));
 
-            run("R04: The top " + demoN + " populated countries in the world.",
-                    () -> r4(connection, demoN), scanner, isInteractive);
+            run("Report-5: The top " + n + " populated countries in the continent " + continent + ".",
+                    () -> report.printCountryReport("Continent", continent, n));
 
-            run("R05: The top " + demoN + " populated countries in the continent " + demoContinent + ".",
-                    () -> r5(connection, demoContinent, demoN), scanner, isInteractive);
+            run("Report-6: The top " + n + " populated countries in the region " + region + ".",
+                    () -> report.printCountryReport("Region", region, n));
 
-            run("R06: The top " + demoN + " populated countries in the region " + demoRegion + ".",
-                    () -> r6(connection, demoRegion, demoN), scanner, isInteractive);
+            run("Report-7: All the cities in the world organised by largest population to smallest.",
+                    () -> report.printCityReport(null, null, null));
 
-            run("R07: All the cities in the world organised by largest population to smallest.",
-                    () -> r7(connection), scanner, isInteractive);
+            run("Report-8: All the cities in the continent " + continent + " organised by largest population to smallest.",
+                    () -> report.printCityReport("Continent", continent, null));
 
-            run("R08: All the cities in the continent " + demoContinent + " organised by largest population to smallest.",
-                    () -> r8(connection, demoContinent), scanner, isInteractive);
+            run("Report-9: All the cities in the region " + region + " organised by largest population to smallest.",
+                    () -> report.printCityReport("Region", region, null));
 
-            run("R09: All the cities in the region " + demoRegion + " organised by largest population to smallest.",
-                    () -> r9(connection, demoRegion), scanner, isInteractive);
+            run("Report-10: All the cities in the country " + country + " organised by largest population to smallest.",
+                    () -> report.printCityReport("Country", country, null));
 
-            run("R10: All the cities in the country " + demoCountry + " organised by largest population to smallest.",
-                    () -> r10(connection, demoCountry), scanner, isInteractive);
+            run("Report-11: All the cities in the district " + district + " organised by largest population to smallest.",
+                    () -> report.printCityReport("District", district, null));
 
-            run("R11: All the cities in the district " + demoDistrict + " organised by largest population to smallest.",
-                    () -> r11(connection, demoDistrict), scanner, isInteractive);
+            run("Report-12: The top " + n + " populated cities in the world.",
+                    () -> report.printCityReport(null, null, n));
 
-            run("R12: The top " + demoN + " populated cities in the world.",
-                    () -> r12(connection, demoN), scanner, isInteractive);
+            run("Report-13: The top " + n + " populated cities in the continent " + continent + ".",
+                    () -> report.printCityReport("Continent", continent, n));
 
-            run("R13: The top " + demoN + " populated cities in the continent " + demoContinent + ".",
-                    () -> r13(connection, demoContinent, demoN), scanner, isInteractive);
+            run("Report-14: The top " + n + " populated cities in the region " + region + ".",
+                    () -> report.printCityReport("Region", region, n));
 
-            run("R14: The top " + demoN + " populated cities in the region " + demoRegion + ".",
-                    () -> r14(connection, demoRegion, demoN), scanner, isInteractive);
+            run("Report-15: The top " + n + " populated cities in the country " + country + ".",
+                    () -> report.printCityReport("Country", country, n));
 
-            run("R15: The top " + demoN + " populated cities in the country " + demoCountry + ".",
-                    () -> r15(connection, demoCountry, demoN), scanner, isInteractive);
+            run("Report-16: The top " + n + " populated cities in the district " + district + ".",
+                    () -> report.printCityReport("District", district, n));
 
-            run("R16: The top " + demoN + " populated cities in the district " + demoDistrict + ".",
-                    () -> r16(connection, demoDistrict, demoN), scanner, isInteractive);
+            run("Report-17: All the capital cities in the world organised by largest population to smallest.",
+                    () -> report.printCapitalReport(null, null, null));
 
-            run("R17: All the capital cities in the world organised by largest population to smallest.",
-                    () -> r17(connection), scanner, isInteractive);
+            run("Report-18: All the capital cities in the continent " + continent + " organised by largest population to smallest.",
+                    () -> report.printCapitalReport("Continent", continent, null));
 
-            run("R18: All the capital cities in the continent " + demoContinent + " organised by largest population to smallest.",
-                    () -> r18(connection, demoContinent), scanner, isInteractive);
+            run("Report-19: All the capital cities in the region " + region + " organised by largest to smallest.",
+                    () -> report.printCapitalReport("Region", region, null));
 
-            run("R19: All the capital cities in the region " + demoRegion + " organised by largest to smallest.",
-                    () -> r19(connection, demoRegion), scanner, isInteractive);
+            run("Report-20: The top " + n + " populated capital cities in the world.",
+                    () -> report.printCapitalReport(null, null, n));
 
-            run("R20: The top " + demoN + " populated capital cities in the world.",
-                    () -> r20(connection, demoN), scanner, isInteractive);
+            run("Report-21: The top " + n + " populated capital cities in the continent " + continent + ".",
+                    () -> report.printCapitalReport("Continent", continent, n));
 
-            run("R21: The top " + demoN + " populated capital cities in the continent " + demoContinent + ".",
-                    () -> r21(connection, demoContinent, demoN), scanner, isInteractive);
+            run("Report-22: The top " + n + " populated capital cities in the region " + region + ".",
+                    () -> report.printCapitalReport("Region", region, n));
 
-            run("R22: The top " + demoN + " populated capital cities in the region " + demoRegion + ".",
-                    () -> r22(connection, demoRegion, demoN), scanner, isInteractive);
+            run("Report-23: Population of people, living in cities, and not living in cities in each continent.",
+                    () -> report.printPopulationReport("CONTINENT_BREAKDOWN", null));
 
-            run("R23: Population of people, living in cities, and not living in cities in each continent.",
-                    () -> r23(connection), scanner, isInteractive);
+            run("Report-24: Population of people, living in cities, and not living in cities in each region.",
+                    () -> report.printPopulationReport("REGION_BREAKDOWN", null));
 
-            run("R24: Population of people, living in cities, and not living in cities in each region.",
-                    () -> r24(connection), scanner, isInteractive);
+            run("Report-25: Population of people, living in cities, and not living in cities in each country.",
+                    () -> report.printPopulationReport("COUNTRY_BREAKDOWN", null));
 
-            run("R25: Population of people, living in cities, and not living in cities in each country.",
-                    () -> r25(connection), scanner, isInteractive);
+            run("Report-26: The population of the world.",
+                    () -> report.printPopulationReport("WORLD_POPULATION", null));
 
-            run("R26: The population of the world.",
-                    () -> r26(connection), scanner, isInteractive);
+            run("Report-27: The population of the continent " + continent + ".",
+                    () -> report.printPopulationReport("POPULATION_BY_CONTINENT", continent));
 
-            run("R27: The population of the continent " + demoContinent + ".",
-                    () -> r27(connection, demoContinent), scanner, isInteractive);
+            run("Report-28: The population of the region " + region + ".",
+                    () -> report.printPopulationReport("POPULATION_BY_REGION", region));
 
-            run("R28: The population of the region " + demoRegion + ".",
-                    () -> r28(connection, demoRegion), scanner, isInteractive);
+            run("Report-29: The population of the country " + country + ".",
+                    () -> report.printPopulationReport("POPULATION_BY_COUNTRY", country));
 
-            run("R29: The population of the country " + demoCountry + ".",
-                    () -> r29(connection, demoCountry), scanner, isInteractive);
+            run("Report-30: The population of the district " + district + ".",
+                    () -> report.printPopulationReport("POPULATION_BY_DISTRICT", district));
 
-            run("R30: The population of the district " + demoDistrict + ".",
-                    () -> r30(connection, demoDistrict), scanner, isInteractive);
+            run("Report-31: The population of the city " + city + ".",
+                    () -> report.printPopulationReport("POPULATION_BY_CITY", city));
 
-            run("R31: The population of the city " + demoCity + ".",
-                    () -> r31(connection, demoCity), scanner, isInteractive);
-
-            run("R32: Number of people who speak Chinese, English, Hindi, Spanish, Arabic.",
-                    () -> r32(connection), scanner, isInteractive);
-
+            run("Report-32: Number of people who speak Chinese, English, Hindi, Spanish, Arabic.",
+                    () -> report.printLanguageReport());
         }
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+
     }
 
-    private static boolean wantsHelp(String[] args) {
-        for (String arg : args) {
-            if (arg.equals("--help") || arg.equals("-h")) {
-                return true;
-            }
+    private static Reports activeReports;
+
+    private static void run(String title, ReportAction action) throws SQLException {
+        System.out.println("=====================================");
+        System.out.println(title);
+        System.out.println("=====================================");
+        int colon = title.indexOf(':');
+        if (activeReports != null && colon > 0) {
+            activeReports.startReport(title.substring(0, colon));
         }
-        return false;
+        action.run();
+        System.out.println();
     }
 
-    /**
-     * Report inputs: the fixed demonstration values by default, optionally overridden by
-     * {@code --name=value} arguments. Nothing is prompted for, so unattended runs never wait.
-     */
+    @FunctionalInterface
+    private interface ReportAction {
+        void run() throws SQLException;
+    }
+
     static final class Settings {
         static final int DEFAULT_N = 5;
         static final String DEFAULT_CONTINENT = "Europe";
@@ -187,6 +176,7 @@ public class App {
                         + "  --country=<name>    country for the country reports (default " + DEFAULT_COUNTRY + ")\n"
                         + "  --district=<name>   district for the district reports (default " + DEFAULT_DISTRICT + ")\n"
                         + "  --city=<name>       city for the city population report (default " + DEFAULT_CITY + ")\n"
+                        + "  --export=<folder>   also save each report as a CSV file in this folder\n"
                         + "  --help              show this message\n"
                         + "With no options the defaults are used, so the program runs unattended.";
 
@@ -196,8 +186,11 @@ public class App {
         final String country;
         final String district;
         final String city;
+        final String exportDir;
 
-        private Settings(int n, String continent, String region, String country, String district, String city) {
+        private Settings(int n, String continent, String region, String country, String district, String city,
+                         String exportDir) {
+            this.exportDir = exportDir;
             this.n = n;
             this.continent = continent;
             this.region = region;
@@ -206,9 +199,6 @@ public class App {
             this.city = city;
         }
 
-        /**
-         * Reads {@code --name=value} arguments; throws IllegalArgumentException for anything invalid.
-         */
         static Settings parse(String[] args) {
             int n = DEFAULT_N;
             String continent = DEFAULT_CONTINENT;
@@ -216,8 +206,13 @@ public class App {
             String country = DEFAULT_COUNTRY;
             String district = DEFAULT_DISTRICT;
             String city = DEFAULT_CITY;
+            String exportDir = null;
 
             for (String arg : args) {
+                if (arg.equals("--help") || arg.equals("-h")) {
+                    System.out.println(USAGE);
+                    System.exit(0);
+                }
                 int equals = arg.indexOf('=');
                 if (!arg.startsWith("--") || equals < 0) {
                     throw new IllegalArgumentException("Unrecognised argument: " + arg);
@@ -246,11 +241,14 @@ public class App {
                     case "city":
                         city = value;
                         break;
+                    case "export":
+                        exportDir = value;
+                        break;
                     default:
                         throw new IllegalArgumentException("Unknown option: --" + key);
                 }
             }
-            return new Settings(n, continent, region, country, district, city);
+            return new Settings(n, continent, region, country, district, city, exportDir);
         }
 
         private static int parsePositive(String value) {
@@ -259,28 +257,10 @@ public class App {
                 if (number > 0) {
                     return number;
                 }
-            } catch (NumberFormatException ignored) {
-                // falls through to the error below
-            }
+            } catch (NumberFormatException ignored) {}
             throw new IllegalArgumentException("N must be a positive whole number, got '" + value + "'");
         }
     }
 
-    @FunctionalInterface
-    private interface ReportAction {
-        void run() throws SQLException;
-    }
-
-    private static void run(
-            String title, ReportAction action, Scanner scanner, boolean isInteractive)
-            throws SQLException {
-        System.out.println("=====================================");
-        System.out.println(title);
-        System.out.println("=====================================");
-        action.run();
-        System.out.println("Press ENTER to continue...");
-        if (isInteractive && scanner != null) {
-            scanner.nextLine();
-        }
-    }
 }
+

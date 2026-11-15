@@ -1,529 +1,318 @@
 package com.napier.devops;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.*;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Population reports against the MySQL World sample database.
- * Column sets follow the SET09803 assessment brief.
- */
-public class Reports {
+@SuppressWarnings("DuplicatedCode")
+public class Reports
+{
+     // private final String url = "JDBC:mysql://localhost/world";
+     // private String user = "root";
+     // private String password = "";
 
-    // Country report: Code, Name, Continent, Region, Population, Capital (name)
+     // private String url = System.getenv("DB_URL");
+     // private String user = System.getenv("DB_USER");
+     // private String password = System.getenv("DB_PASSWORD");
+
+    String url = envOr("DB_URL",
+            "jdbc:mysql://localhost:3306/world?allowPublicKeyRetrieval=true&useSSL=false");
+    String user = envOr("DB_USER", "world_app");
+    String password = envOr("DB_PASSWORD", "world_example");
+
+    private Connection connection;
+
+    public Reports() {
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+            System.out.println("Connected Successfully...");
+        } catch (Exception e) {
+            System.out.println("Database Connection Error: " + e.getMessage());
+        }
+    }
+
+    private static String envOr(String name, String fallback) {
+        String value = System.getenv(name);
+        return (value == null || value.isBlank()) ? fallback : value;
+    }
+
+    // Constructor for testing with injected connections
+    //   public ReportPrintMy(Connection connection) {
+    //this.connection = connection;
+    //}
+
     private static final String COUNTRY_SELECT =
             "SELECT country.Code, country.Name, country.Continent, country.Region, "
                     + "country.Population, capital.Name AS Capital "
                     + "FROM country "
                     + "LEFT JOIN city AS capital ON capital.ID = country.Capital ";
 
-    // City report: Name, Country, District, Population
     private static final String CITY_SELECT =
             "SELECT city.Name, country.Name AS Country, city.District, city.Population "
                     + "FROM city "
                     + "JOIN country ON country.Code = city.CountryCode ";
 
-    // Capital city report: Name, Country, Population
     private static final String CAPITAL_SELECT =
             "SELECT city.Name, country.Name AS Country, city.Population "
                     + "FROM country "
                     + "JOIN city ON city.ID = country.Capital ";
 
     /**
-     * R1: All countries in the world by population DESC.
+     * 1. Country Reports (Report-01 - Report-06) to printCountryReport()
+     * filterColumn: "Continent", "Region", or null (for world database)
      */
-    public static void r1(Connection connection) throws SQLException {
-        executeQuery(connection, COUNTRY_SELECT + "ORDER BY country.Population DESC, country.Name ASC");
+    public void printCountryReport(String filterColumn, String filterValue, Integer limit) throws SQLException {
+        StringBuilder sql = new StringBuilder(COUNTRY_SELECT);
+        List<Object> params = new ArrayList<>();
+
+        if (filterColumn != null && !filterColumn.isEmpty()) {
+            sql.append("WHERE country.").append(filterColumn).append(" = ? ");
+            params.add(filterValue);
+        }
+
+        sql.append("ORDER BY country.Population DESC, country.Name ASC ");
+
+        if (limit != null && limit > 0) {
+            sql.append("LIMIT ?");
+            params.add(limit);
+        }
+
+        executeQuery(sql.toString(), params.toArray());
     }
 
     /**
-     * R2: All countries in a continent by population DESC.
+     * 2. City Reports (Report-07 - Report-16) to printCityReport()
+     * filterColumn: "Continent", "Region", "Name" (country name), "District", or null (world)
      */
-    public static void r2(Connection connection, String continent) throws SQLException {
-        executeQuery(
-                connection,
-                COUNTRY_SELECT + "WHERE country.Continent = ? ORDER BY country.Population DESC, country.Name ASC",
-                continent);
+    public void printCityReport(String filterColumn, String filterValue, Integer limit) throws SQLException {
+        StringBuilder sql = new StringBuilder(CITY_SELECT);
+        List<Object> params = new ArrayList<>();
+
+        if (filterColumn != null && !filterColumn.isEmpty()) {
+            if (filterColumn.equals("Continent") || filterColumn.equals("Region")) {
+                sql.append("WHERE country.").append(filterColumn).append(" = ? ");
+            } else if (filterColumn.equals("Country")) {
+                sql.append("WHERE country.Name = ? ");
+            } else if (filterColumn.equals("District")) {
+                sql.append("WHERE city.District = ? ");
+            }
+            params.add(filterValue);
+        }
+
+        sql.append("ORDER BY city.Population DESC, city.Name ASC ");
+
+        if (limit != null && limit > 0) {
+            sql.append("LIMIT ?");
+            params.add(limit);
+        }
+
+        executeQuery(sql.toString(), params.toArray());
     }
 
     /**
-     * R3: All countries in a region by population DESC.
+     * 3. Capital City Reports (Report-17 - Report-22) to printCapitalReport()
+     * filterColumn: "Continent", "Region", or null (world)
      */
-    public static void r3(Connection connection, String region) throws SQLException {
-        executeQuery(
-                connection,
-                COUNTRY_SELECT + "WHERE country.Region = ? ORDER BY country.Population DESC, country.Name ASC",
-                region);
+    public void printCapitalReport(String filterColumn, String filterValue, Integer limit) throws SQLException {
+        StringBuilder sql = new StringBuilder(CAPITAL_SELECT);
+        List<Object> params = new ArrayList<>();
+
+        if (filterColumn != null && !filterColumn.isEmpty()) {
+            sql.append("WHERE country.").append(filterColumn).append(" = ? ");
+            params.add(filterValue);
+        }
+
+        sql.append("ORDER BY city.Population DESC, city.Name ASC ");
+
+        if (limit != null && limit > 0) {
+            sql.append("LIMIT ?");
+            params.add(limit);
+        }
+
+        executeQuery(sql.toString(), params.toArray());
+    }
+
+    // City populations are summed per country first, so a country is never counted once per city.
+    private static final String BREAKDOWN_COLUMNS =
+            "SUM(cou.Population) AS PeoplePopulation, " +
+            "SUM(IFNULL(c.CityPop, 0)) AS LivinginCityPopulation, " +
+            "ROUND(SUM(IFNULL(c.CityPop, 0)) / SUM(cou.Population) * 100, 2) AS CityPercent, " +
+            "SUM(cou.Population) - SUM(IFNULL(c.CityPop, 0)) AS NotLivingInPopulation, " +
+            "ROUND((SUM(cou.Population) - SUM(IFNULL(c.CityPop, 0))) / SUM(cou.Population) * 100, 2) AS NonCityPercent ";
+    private static final String BREAKDOWN_FROM =
+            "FROM country cou LEFT JOIN " +
+            "(SELECT CountryCode, SUM(Population) AS CityPop FROM city GROUP BY CountryCode) c " +
+            "ON cou.Code = c.CountryCode ";
+
+    /**
+     * 4. Population Breakdown & Aggregate Reports (Report-23 - Report-31) to printPopulationReport()
+     * reportType: "CONTINENT", "REGION", "COUNTRY_BREAKDOWN", "WORLD", "POPULATION_BY_CONTAINER"
+     */
+    public void printPopulationReport(String reportType, String targetValue) throws SQLException {
+        String sql;
+        List<Object> params = new ArrayList<>();
+
+        switch (reportType.toUpperCase()) {
+            case "CONTINENT_BREAKDOWN":
+                sql = "SELECT cou.Continent AS Continent, " + BREAKDOWN_COLUMNS + BREAKDOWN_FROM + "GROUP BY cou.Continent";
+                break;
+            case "REGION_BREAKDOWN":
+                sql = "SELECT cou.Region AS Region, " + BREAKDOWN_COLUMNS + BREAKDOWN_FROM + "GROUP BY cou.Region";
+                break;
+            case "COUNTRY_BREAKDOWN":
+                sql = "SELECT cou.Name AS Country, " + BREAKDOWN_COLUMNS + BREAKDOWN_FROM + "GROUP BY cou.Name ORDER BY cou.Name";
+                break;
+            case "WORLD_POPULATION":
+                sql = "SELECT SUM(Population) AS WorldPopulation FROM country";
+                break;
+            case "POPULATION_BY_CONTINENT":
+                sql = "SELECT Continent, SUM(Population) AS Population FROM country WHERE Continent = ? GROUP BY Continent";
+                params.add(targetValue);
+                break;
+            case "POPULATION_BY_REGION":
+                sql = "SELECT Region, SUM(Population) AS Population FROM country WHERE Region = ? GROUP BY Region";
+                params.add(targetValue);
+                break;
+            case "POPULATION_BY_COUNTRY":
+                sql = "SELECT Name AS Country, Population FROM country WHERE Name = ?";
+                params.add(targetValue);
+                break;
+            case "POPULATION_BY_DISTRICT":
+                sql = "SELECT District, SUM(Population) AS Population FROM city WHERE District = ? GROUP BY District";
+                params.add(targetValue);
+                break;
+            case "POPULATION_BY_CITY":
+                sql = "SELECT city.Name AS City, country.Name AS Country, city.District, city.Population " +
+                        "FROM city JOIN country ON country.Code = city.CountryCode WHERE city.Name = ? " +
+                        "ORDER BY city.Population DESC, country.Name ASC";
+                params.add(targetValue);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid population report type: " + reportType);
+        }
+
+        executeQuery(sql, params.toArray());
     }
 
     /**
-     * R4: Top N countries in the world.
+     * 5. Language Speaker Statistics Report (Replaces R32) to printLanguageReport()
      */
-    public static void r4(Connection connection, int n) throws SQLException {
-        executeQuery(
-                connection,
-                COUNTRY_SELECT + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
-                n);
+    public void printLanguageReport() throws SQLException {
+        String sql = "SELECT cl.Language, ROUND(SUM(co.population * cl.Percentage / 100), 0) AS NoOfPeople, " +
+                "ROUND(SUM(co.Population * cl.Percentage / 100) * 100.0 / (SELECT SUM(Population) FROM country), 2) AS WorldPercentage " +
+                "FROM countrylanguage cl, country co WHERE cl.countrycode = co.code " +
+                "GROUP BY cl.language " +
+                "HAVING cl.language IN ('Chinese', 'English', 'Hindi', 'Spanish', 'Arabic') " +
+                "ORDER BY NoOfPeople DESC, cl.language ASC";
+        executeQuery(sql);
     }
 
-    /**
-     * R5: Top N countries in a continent.
-     */
-    public static void r5(Connection connection, String continent, int n) throws SQLException {
-        executeQuery(
-                connection,
-                COUNTRY_SELECT
-                        + "WHERE country.Continent = ? "
-                        + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
-                continent,
-                n);
-    }
-
-    /**
-     * R6: Top N countries in a region.
-     */
-    public static void r6(Connection connection, String region, int n) throws SQLException {
-        executeQuery(
-                connection,
-                COUNTRY_SELECT
-                        + "WHERE country.Region = ? "
-                        + "ORDER BY country.Population DESC, country.Name ASC LIMIT ?",
-                region,
-                n);
-    }
-
-    /**
-     * R7: All cities in the world by population DESC.
-     */
-    public static void r7(Connection connection) throws SQLException {
-        executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC, city.Name ASC");
-    }
-
-    /**
-     * R8: All cities in a continent by population DESC.
-     */
-    public static void r8(Connection connection, String continent) throws SQLException {
-        executeQuery(
-                connection,
-                CITY_SELECT + "WHERE country.Continent = ? ORDER BY city.Population DESC, city.Name ASC",
-                continent);
-    }
-
-    /**
-     * R9: All cities in a region by population DESC.
-     */
-    public static void r9(Connection connection, String region) throws SQLException {
-        executeQuery(
-                connection,
-                CITY_SELECT + "WHERE country.Region = ? ORDER BY city.Population DESC, city.Name ASC",
-                region);
-    }
-
-    /**
-     * R10: All cities in a country by population DESC.
-     */
-    public static void r10(Connection connection, String country) throws SQLException {
-        executeQuery(
-                connection,
-                CITY_SELECT + "WHERE country.Name = ? ORDER BY city.Population DESC, city.Name ASC",
-                country);
-    }
-
-    /**
-     * R11: All cities in a district by population DESC.
-     */
-    public static void r11(Connection connection, String district) throws SQLException {
-        executeQuery(
-                connection,
-                CITY_SELECT + "WHERE city.District = ? ORDER BY city.Population DESC, city.Name ASC",
-                district);
-    }
-
-    /**
-     * R12: Top N cities in the world.
-     */
-    public static void r12(Connection connection, int n) throws SQLException {
-        executeQuery(connection, CITY_SELECT + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?", n);
-    }
-
-    /**
-     * R13: Top N cities in a continent.
-     */
-    public static void r13(Connection connection, String continent, int n) throws SQLException {
-        executeQuery(
-                connection,
-                CITY_SELECT
-                        + "WHERE country.Continent = ? "
-                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
-                continent,
-                n);
-    }
-
-    /**
-     * R14: Top N cities in a region.
-     */
-    public static void r14(Connection connection, String region, int n) throws SQLException {
-        executeQuery(
-                connection,
-                CITY_SELECT
-                        + "WHERE country.Region = ? "
-                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
-                region,
-                n);
-    }
-
-    /**
-     * R15: Top N cities in a country.
-     */
-    public static void r15(Connection connection, String country, int n) throws SQLException {
-        executeQuery(
-                connection,
-                CITY_SELECT
-                        + "WHERE country.Name = ? "
-                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
-                country,
-                n);
-    }
-
-    /**
-     * R16: Top N cities in a district.
-     */
-    public static void r16(Connection connection, String district, int n) throws SQLException {
-        executeQuery(
-                connection,
-                CITY_SELECT
-                        + "WHERE city.District = ? "
-                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
-                district,
-                n);
-    }
-
-    /**
-     * R17: All capital cities in the world by population DESC.
-     */
-    public static void r17(Connection connection) throws SQLException {
-        executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC, city.Name ASC");
-    }
-
-    /**
-     * R18: All capital cities in a continent by population DESC.
-     */
-    public static void r18(Connection connection, String continent) throws SQLException {
-        executeQuery(
-                connection,
-                CAPITAL_SELECT + "WHERE country.Continent = ? ORDER BY city.Population DESC, city.Name ASC",
-                continent);
-    }
-
-    /**
-     * R19: All capital cities in a region by population DESC.
-     */
-    public static void r19(Connection connection, String region) throws SQLException {
-        executeQuery(
-                connection,
-                CAPITAL_SELECT + "WHERE country.Region = ? ORDER BY city.Population DESC, city.Name ASC",
-                region);
-    }
-
-    /**
-     * R20: Top N capital cities in the world.
-     */
-    public static void r20(Connection connection, int n) throws SQLException {
-        executeQuery(connection, CAPITAL_SELECT + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?", n);
-    }
-
-    /**
-     * R21: Top N capital cities in a continent.
-     */
-    public static void r21(Connection connection, String continent, int n) throws SQLException {
-        executeQuery(
-                connection,
-                CAPITAL_SELECT
-                        + "WHERE country.Continent = ? "
-                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
-                continent,
-                n);
-    }
-
-    /**
-     * R22: Top N capital cities in a region.
-     */
-    public static void r22(Connection connection, String region, int n) throws SQLException {
-        executeQuery(
-                connection,
-                CAPITAL_SELECT
-                        + "WHERE country.Region = ? "
-                        + "ORDER BY city.Population DESC, city.Name ASC LIMIT ?",
-                region,
-                n);
-    }
-
-    /**
-     * R23: People / in cities / not in cities for each continent (with %).
-     */
-    public static void r23(Connection connection) throws SQLException {
-        executeQuery(connection, populationBreakdownSql("country.Continent", "Continent"));
-    }
-
-    /**
-     * R24: People / in cities / not in cities for each region (with %).
-     */
-    public static void r24(Connection connection) throws SQLException {
-        executeQuery(connection, populationBreakdownSql("country.Region", "Region"));
-    }
-
-    /**
-     * R25: People / in cities / not in cities for each country (with %).
-     */
-    public static void r25(Connection connection) throws SQLException {
-        String sql =
-                "SELECT country.Name AS Country, "
-                        + "country.Population AS TotalPopulation, "
-                        + "COALESCE(city_totals.CityPopulation, 0) AS CityPopulation, "
-                        + "ROUND(COALESCE(city_totals.CityPopulation, 0) * 100.0 "
-                        + "/ NULLIF(country.Population, 0), 2) AS CityPercentage, "
-                        + "(country.Population - COALESCE(city_totals.CityPopulation, 0)) "
-                        + "AS NotInCitiesPopulation, "
-                        + "ROUND((country.Population - COALESCE(city_totals.CityPopulation, 0)) "
-                        + "* 100.0 / NULLIF(country.Population, 0), 2) AS NotInCitiesPercentage "
-                        + "FROM country "
-                        + "LEFT JOIN ("
-                        + "  SELECT CountryCode, SUM(Population) AS CityPopulation "
-                        + "  FROM city GROUP BY CountryCode"
-                        + ") city_totals ON city_totals.CountryCode = country.Code "
-                        + "ORDER BY country.Population DESC, country.Name ASC";
-        executeQuery(connection, sql);
-    }
-
-    /**
-     * R26: Population of the world.
-     */
-    public static void r26(Connection connection) throws SQLException {
-        executeQuery(connection, "SELECT SUM(Population) AS WorldPopulation FROM country");
-    }
-
-    /**
-     * R27: Population of a continent.
-     */
-    public static void r27(Connection connection, String continent) throws SQLException {
-        executeQuery(
-                connection,
-                "SELECT Continent, SUM(Population) AS Population "
-                        + "FROM country WHERE Continent = ? GROUP BY Continent",
-                continent);
-    }
-
-    /**
-     * R28: Population of a region.
-     */
-    public static void r28(Connection connection, String region) throws SQLException {
-        executeQuery(
-                connection,
-                "SELECT Region, SUM(Population) AS Population "
-                        + "FROM country WHERE Region = ? GROUP BY Region",
-                region);
-    }
-
-    /**
-     * R29: Population of a country.
-     */
-    public static void r29(Connection connection, String country) throws SQLException {
-        executeQuery(
-                connection,
-                "SELECT Name AS Country, Population FROM country WHERE Name = ?",
-                country);
-    }
-
-    /**
-     * R30: Population of a district.
-     */
-    public static void r30(Connection connection, String district) throws SQLException {
-        executeQuery(
-                connection,
-                "SELECT District, SUM(Population) AS Population "
-                        + "FROM city WHERE District = ? GROUP BY District",
-                district);
-    }
-
-    /**
-     * R31: Population of a city.
-     */
-    public static void r31(Connection connection, String city) throws SQLException {
-        executeQuery(
-                connection,
-                "SELECT city.Name AS City, country.Name AS Country, city.District, city.Population "
-                        + "FROM city JOIN country ON country.Code = city.CountryCode "
-                        + "WHERE city.Name = ? "
-                        + "ORDER BY city.Population DESC, country.Name ASC",
-                city);
-    }
-
-    /**
-     * R32: Speakers of Chinese, English, Hindi, Spanish, Arabic
-     * with percentage of world population, greatest to smallest.
-     */
-    public static void r32(Connection connection) throws SQLException {
-
-        String sql =
-                "SELECT countrylanguage.Language, "
-                        + "ROUND(SUM(country.Population * countrylanguage.Percentage / 100)) "
-                        + "AS Speakers, "
-                        + "ROUND("
-                        + "  SUM(country.Population * countrylanguage.Percentage / 100) * 100.0 "
-                        + "  / (SELECT SUM(Population) FROM country), 2"
-                        + ") AS WorldPercentage "
-                        + "FROM countrylanguage "
-                        + "JOIN country ON country.Code = countrylanguage.CountryCode "
-                        + "WHERE countrylanguage.Language IN "
-                        + "('Chinese', 'English', 'Hindi', 'Spanish', 'Arabic') "
-                        + "GROUP BY countrylanguage.Language "
-                        + "ORDER BY Speakers DESC";
-        executeQuery(connection, sql);
-
-    }
-
-    private static String populationBreakdownSql(String grpExpr, String lbl) {
-        return "SELECT " + grpExpr + " AS `" + lbl + "`, "
-                + "SUM(country.Population) AS TotalPopulation, "
-                + "COALESCE(SUM(city_totals.CityPopulation), 0) AS CityPopulation, "
-                + "ROUND(COALESCE(SUM(city_totals.CityPopulation), 0) * 100.0 "
-                + "/ NULLIF(SUM(country.Population), 0), 2) AS CityPercentage, "
-                + "(SUM(country.Population) - COALESCE(SUM(city_totals.CityPopulation), 0)) "
-                + "AS NotInCitiesPopulation, "
-                + "ROUND((SUM(country.Population) - COALESCE(SUM(city_totals.CityPopulation), 0)) "
-                + "* 100.0 / NULLIF(SUM(country.Population), 0), 2) AS NotInCitiesPercentage "
-                + "FROM country "
-                + "LEFT JOIN ("
-                + "  SELECT CountryCode, SUM(Population) AS CityPopulation "
-                + "  FROM city GROUP BY CountryCode"
-                + ") city_totals ON city_totals.CountryCode = country.Code "
-                + "GROUP BY " + grpExpr + " "
-                + "ORDER BY " + grpExpr;
-    }
-
-    private static void executeQuery(Connection connection, String sql, Object... parameters)
-            throws SQLException {
-
+    private void executeQuery(String sql, Object... parameters) throws SQLException {
+        if (connection == null) {
+            throw new SQLException("Database connection is not initialized.");
+        }
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             for (int i = 0; i < parameters.length; i++) {
                 statement.setObject(i + 1, parameters[i]);
             }
 
-            ResultSet results = statement.executeQuery();
-
-            try {
-
+            try (ResultSet results = statement.executeQuery()) {
                 ResultSetMetaData data = results.getMetaData();
                 int columns = data.getColumnCount();
 
                 String[] columnTitle = new String[columns];
                 int[] columnSize = new int[columns];
 
-                // Get column names and initial widths
                 for (int i = 0; i < columns; i++) {
                     columnTitle[i] = data.getColumnLabel(i + 1);
                     columnSize[i] = columnTitle[i].length();
-
-                    //  int type = mdata.getColumnType(i + 1);
-
                 }
 
-                // Read all rows and calculate column widths
                 List<String[]> records = new ArrayList<>();
-
                 while (results.next()) {
                     String[] record = new String[columns];
-
                     for (int i = 0; i < columns; i++) {
                         record[i] = results.getString(i + 1);
-
                         if (record[i] == null) {
                             record[i] = "NULL";
                         }
-
                         columnSize[i] = Math.max(columnSize[i], record[i].length());
                     }
-
                     records.add(record);
                 }
 
-                // Display column Title
-                recordPrint(columnTitle, columnSize);//, numeric);
+                // System.out.println("\n");
+                recordPrint(columnTitle, columnSize);
                 displayLine(columnSize);
 
-                // Print data
                 for (String[] row : records) {
-                    recordPrint(row, columnSize);//, numeric);
+                    recordPrint(row, columnSize);
                 }
-
                 displayLine(columnSize);
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
 
-        /*
-
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            for (int i = 0; i < parameters.length; i++) {
-                statement.setObject(i + 1, parameters[i]);
-            }
-
-            ResultSet results = statement.executeQuery();
-
-            try {
-
-                ResultSetMetaData metadata = results.getMetaData();
-                int columnCount = metadata.getColumnCount();
-
-                for (int i = 1; i <= columnCount; i++) {
-                    System.out.print(metadata.getColumnLabel(i));
-                    if (i < columnCount) {
-                        System.out.print(" | ");
-                    }
+                if (exportFile != null) {
+                    writeCsv(columnTitle, records);
                 }
-                System.out.println();
-
-                while (results.next()) {
-                    for (int i = 1; i <= columnCount; i++) {
-                        String value = results.getString(i);
-                        System.out.print(value == null ? "n/a" : value);
-                        if (i < columnCount) {
-                            System.out.print(" | ");
-                        }
-                    }
-                    System.out.println();
-                }
-
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
             }
-
         }
-
-        */
     }
 
-    // Print a record using calculated widths
-    static void recordPrint(String[] dataValues, int[] colWidth)//, boolean[] numeric)
-    {
+    private Path exportDir;
+    private Path exportFile;
+
+    public void setExportDir(Path dir) {
+        this.exportDir = dir;
+    }
+
+    // Picks the CSV file for the next report; null exportDir turns exporting off
+    public void startReport(String name) {
+        exportFile = (exportDir == null) ? null : exportDir.resolve(name + ".csv");
+    }
+
+    private void writeCsv(String[] header, List<String[]> records) {
+        List<String> lines = new ArrayList<>();
+        lines.add(csvLine(header));
+        for (String[] row : records) {
+            lines.add(csvLine(row));
+        }
+        try {
+            Files.createDirectories(exportFile.getParent());
+            Files.write(exportFile, lines, StandardCharsets.UTF_8);
+            System.out.println("Exported to " + exportFile);
+        } catch (IOException e) {
+            System.out.println("Could not export " + exportFile + ": " + e.getMessage());
+        }
+    }
+
+    static String csvLine(String[] values) {
+        StringBuilder line = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) {
+                line.append(',');
+            }
+            String v = values[i] == null ? "" : values[i];
+            if (v.contains(",") || v.contains("\"") || v.contains("\n")) {
+                v = "\"" + v.replace("\"", "\"\"") + "\"";
+            }
+            line.append(v);
+        }
+        return line.toString();
+    }
+
+    static void recordPrint(String[] dataValues, int[] colWidth) {
         for (int i = 0; i < dataValues.length; i++) {
-            if ( (Character.isDigit(dataValues[i].charAt(0))) || (Character.isDigit(dataValues[i].charAt(1))) )
+            if (dataValues[i] != null && !dataValues[i].isEmpty() && Character.isDigit(dataValues[i].charAt(0)))
                 System.out.printf("| %" + colWidth[i] + "s ", dataValues[i]);
             else
-                // Numeric Alignment
                 System.out.printf("| %-" + colWidth[i] + "s ", dataValues[i]);
         }
-
         System.out.println("|");
     }
 
-    //   separator line
     static void displayLine(int[] widths) {
         for (int width : widths) {
             System.out.print("+-");
@@ -532,6 +321,5 @@ public class Reports {
         }
         System.out.println("+");
     }
-
 
 }
