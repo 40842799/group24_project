@@ -1,10 +1,8 @@
 package com.napier.devops;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class App
+public class PopulationReportingApp
 {
     public static void main(String[] args) throws SQLException {
         Settings settings;
