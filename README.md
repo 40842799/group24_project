@@ -4,7 +4,11 @@
 [![Build develop](https://img.shields.io/github/actions/workflow/status/40842799/group24_project/main.yml?branch=develop&label=build%20develop)](https://github.com/40842799/group24_project/actions/workflows/main.yml?query=branch%3Adevelop)
 
 [![Release](https://img.shields.io/github/v/release/40842799/group24_project?display_name=release)](https://github.com/40842799/group24_project/releases/latest)
-[![License](https://img.shields.io/github/license/40842799/group24_project)](LICENSE)
+[![License](https://img.shields.io/github/license/40842799/group24_project)](LICENSE) 
+
+[![Develop code coverage](https://shields.io/codecov/c/github/40842799/group24_project/develop?label=develop%20code%20coverage&logo=codecov)](https://codecov.io/gh/40842799/group24_project/branch/develop)
+[![Master code coverage](https://shields.io/codecov/c/github/40842799/group24_project/master?label=master%20code%20coverage&logo=codecov)](https://codecov.io/gh/40842799/group24_project/branch/master)
+
 
 SET09803 DevOps coursework project developed by Group 24 at Edinburgh Napier University.
 
