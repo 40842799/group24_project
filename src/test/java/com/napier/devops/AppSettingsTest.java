@@ -7,8 +7,8 @@ public class AppSettingsTest {
 
     @Test
     void validTopNIsAccepted() {
-        App.Settings settings =
-                App.Settings.parse(new String[]{"--n=5"});
+        PopulationReportingApp.Settings settings =
+                PopulationReportingApp.Settings.parse(new String[]{"--n=5"});
 
         assertEquals(5, settings.n);
     }
@@ -16,28 +16,28 @@ public class AppSettingsTest {
     @Test
     void zeroTopNIsRejected() {
         assertThrows(IllegalArgumentException.class, () ->
-                App.Settings.parse(new String[]{"--n=0"})
+                PopulationReportingApp.Settings.parse(new String[]{"--n=0"})
         );
     }
 
     @Test
     void negativeTopNIsRejected() {
         assertThrows(IllegalArgumentException.class, () ->
-                App.Settings.parse(new String[]{"--n=-5"})
+                PopulationReportingApp.Settings.parse(new String[]{"--n=-5"})
         );
     }
 
     @Test
     void nonNumericTopNIsRejected() {
         assertThrows(IllegalArgumentException.class, () ->
-                App.Settings.parse(new String[]{"--n=abc"})
+                PopulationReportingApp.Settings.parse(new String[]{"--n=abc"})
         );
     }
 
     @Test
     void missingTopNUsesDefault() {
-        App.Settings settings =
-                App.Settings.parse(new String[]{});
+        PopulationReportingApp.Settings settings =
+                PopulationReportingApp.Settings.parse(new String[]{});
 
         assertEquals(5, settings.n);
     }
