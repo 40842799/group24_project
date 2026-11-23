@@ -14,7 +14,7 @@ junit-jupiter-api is for writing tests. It is test-only, so it isn't packaged in
 Build plugins:
 maven-jar-plugin skips the plain jar, since the assembly jar replaces it.
 maven-assembly-plugin makes devops.jar during package.
-   That jar bundles all dependencies and runs com.napier.devops.App.
+   That jar bundles all dependencies and runs com.napier.devops.PopulationReportingApp.
 maven-surefire-plugin runs your unit tests.
 
 In short, mvn package compiles the code, runs the tests, and produces one runnable devops.jar.
@@ -94,7 +94,7 @@ In short, mvn package compiles the code, runs the tests, and produces one runnab
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.napier.devops.App</mainClass>
+                                    <mainClass>com.napier.devops.PopulationReportingApp</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>

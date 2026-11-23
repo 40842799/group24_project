@@ -22,14 +22,14 @@ csvFilesAreSaved:
 */
 
 // Requires a running "world" database (see DB_URL / DB_USER / DB_PASSWORD)
-public class AppIT {
+public class PopulationReportingAppIT {
 
     private String runApp(String... args) throws Exception {
         PrintStream oldOut = System.out;
         ByteArrayOutputStream text = new ByteArrayOutputStream();
         System.setOut(new PrintStream(text, true));
         try {
-            App.main(args);
+            PopulationReportingApp.main(args);
         } finally {
             System.setOut(oldOut);
         }
