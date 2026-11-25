@@ -250,4 +250,44 @@ public class ReportsIT {
         assertEquals(5, lines.size() - 1);
     }
 
+    @Test
+    void cityPopulationPercentageIsCorrect(@TempDir Path dir)
+            throws Exception {
+
+        List<String> lines = runToCsv(dir,
+                r -> r.printPopulationReport("CONTINENT_BREAKDOWN", null));
+
+        assertTrue(lines.size() > 1);
+
+        String[] headers = lines.get(0).split(",");
+        int totalCol = Arrays.asList(headers).indexOf("PeoplePopulation");
+        int cityCol = Arrays.asList(headers).indexOf("LivinginCityPopulation");
+        int percentCol = Arrays.asList(headers).indexOf("CityPercent");
+
+        assertTrue(totalCol >= 0 && cityCol >= 0 && percentCol >= 0);
+
+        for (int i = 1; i < lines.size(); i++) {
+            String[] values = lines.get(i).split(",");
+
+            double total = Double.parseDouble(values[totalCol]);
+            double city = Double.parseDouble(values[cityCol]);
+            String percentValue = values[percentCol].trim();
+
+            if (percentValue.equalsIgnoreCase("NULL")) {
+                assertEquals(0.0, total, 0.01,
+                        "CityPercent should only be NULL when total population is zero");
+                continue;
+            }
+
+            double actualPercent = Double.parseDouble(percentValue);
+
+            if (total > 0) {
+                double expectedPercent =
+                        Math.round((city / total) * 10000.0) / 100.0;
+
+                assertEquals(expectedPercent, actualPercent, 0.01);
+            }
+        }
+    }
+
 }
