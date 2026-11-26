@@ -34,7 +34,7 @@ jobs:
           verbose: true
 
       - name: Build Application
-        run: mvn --batch-mode clean package -DskipTests
+        run: mvn --batch-mode clean package -DskipUnitTests
 
       - name: Test application with MySQL
         run: docker compose up --build --abort-on-container-exit --exit-code-from app
