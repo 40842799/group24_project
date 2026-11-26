@@ -7,7 +7,8 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  unit-tests-and-build:
+    name: Unit Tests and Build
     runs-on: ubuntu-22.04
     timeout-minutes: 10
 
@@ -32,8 +33,8 @@ jobs:
           flags: unit-tests
           verbose: true
 
-      - name: Build application
-        run: mvn --batch-mode clean package
+      - name: Build Application
+        run: mvn --batch-mode clean package -DskipUnitTests
 
       - name: Test application with MySQL
         run: docker compose up --build --abort-on-container-exit --exit-code-from app
@@ -65,7 +66,7 @@ jobs:
         run: docker compose up -d --wait db
 
       - name: Integration Tests
-        run: mvn --batch-mode verify
+        run: mvn --batch-mode verify -DskipUnitTests
 
       - name: CodeCov
         uses: codecov/codecov-action@v5
