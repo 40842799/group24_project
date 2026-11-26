@@ -250,4 +250,17 @@ public class ReportsIT {
         assertEquals(5, lines.size() - 1);
     }
 
-}
+
+    @Test
+    void csvExportFailureThrowsException(@TempDir Path dir) throws Exception {
+        Path invalidLocation = dir.resolve("not-a-directory");
+        Files.writeString(invalidLocation, "This is a file, not a folder");
+
+        Reports report = new Reports();
+        report.setExportDir(invalidLocation);
+        report.startReport("CSV Export Bug Test");
+
+        assertThrows(IllegalStateException.class,
+                () -> report.printLanguageReport());
+    }
+  }

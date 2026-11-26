@@ -135,7 +135,7 @@ public class PopulationReportingApp
         catch(Exception e)
         {
             System.out.println(e.getMessage());
-        }
+            throw new IllegalStateException("Application failed", e);  }
 
     }
 

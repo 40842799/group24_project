@@ -285,7 +285,7 @@ public class Reports
             System.out.println("Exported to " + exportFile);
         } catch (IOException e) {
             System.out.println("Could not export " + exportFile + ": " + e.getMessage());
-        }
+            throw new IllegalStateException("CSV export failed: " + exportFile, e); }
     }
 
     static String csvLine(String[] values) {
