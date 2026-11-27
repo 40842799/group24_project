@@ -3,7 +3,7 @@ name: Build and test Group 24 app
 on: push
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -37,6 +37,28 @@ jobs:
 
       - name: Test application with MySQL
         run: docker compose up --build --abort-on-container-exit --exit-code-from app
+
+      - name: Copy CSV output
+        run: docker compose cp app:/tmp/output ./output
+
+      - name: List output
+        run: ls -R output
+
+      - name: Deploy CSVs to output branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: output
+
+      - name: Release on GitHub
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
+          automatic_release_tag: latest
+          files: |
+            ./target/*.jar
 
       - name: Show container logs
         if: always()

@@ -20,6 +20,7 @@ services:
 
   app:
     build: .
+    command: ["--export=/tmp/output"]
     environment:
       DB_URL: "jdbc:mysql://db:3306/world?allowPublicKeyRetrieval=true&useSSL=false"
       DB_USER: world_app

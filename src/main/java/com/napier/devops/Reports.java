@@ -143,6 +143,7 @@ public class Reports
             "ROUND(SUM(IFNULL(c.CityPop, 0)) / SUM(cou.Population) * 100, 2) AS CityPercent, " +
             "SUM(cou.Population) - SUM(IFNULL(c.CityPop, 0)) AS NotLivingInPopulation, " +
             "ROUND((SUM(cou.Population) - SUM(IFNULL(c.CityPop, 0))) / SUM(cou.Population) * 100, 2) AS NonCityPercent ";
+
     private static final String BREAKDOWN_FROM =
             "FROM country cou LEFT JOIN " +
             "(SELECT CountryCode, SUM(Population) AS CityPop FROM city GROUP BY CountryCode) c " +
